@@ -3,10 +3,11 @@
   "product": "dexcode",
   "repo": "dexnotavailable/dexcode",
   "branch": "ow10/c35-integration",
-  "commit": "cd663f7ea072a69428394638fa913d6a6b6b306f",
-  "committedAt": "2026-09-24T15:56:44.000Z",
-  "pushedAt": "2026-09-24T15:57:01.558Z",
+  "commit": "8d6b38891255d8e9f6c0b46a53e19e52b1509a59",
+  "committedAt": "2026-09-24T15:59:15.000Z",
+  "pushedAt": "2026-09-24T15:59:30.114Z",
   "recent": [
+    "8d6b38891255d8e9f6c0b46a53e19e52b1509a59",
     "cd663f7ea072a69428394638fa913d6a6b6b306f",
     "0ea132a581c3aa753c73fce6e4f31999eb46c9c1",
     "05093a98ce4b5ee34ef0cce97053d9d4284604c5",
@@ -205,7 +206,6 @@
     "d3030c5c9af5adc72edab000f496e5ef110ba842",
     "32f42eb5659095f1251af6012dd34262de39f33b",
     "37ac4f0fa1aea0a5720865cdd3be28c95c6bbdbc",
-    "c7665edc2a48ef04eb6de447fa25a6866b3adee2",
-    "be0fd8cc3991fd34703d464b715ba4f3b216e9bc"
+    "c7665edc2a48ef04eb6de447fa25a6866b3adee2"
   ]
 }
