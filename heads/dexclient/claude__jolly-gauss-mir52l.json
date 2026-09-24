@@ -1,0 +1,31 @@
+{
+  "schema": "dex-builds.head.v1",
+  "product": "dexclient",
+  "repo": "dexnotavailable/dexclient",
+  "branch": "claude/jolly-gauss-mir52l",
+  "commit": "0d5a1e960de4fd39911be186ca58468d80a05361",
+  "committedAt": "2026-09-24T14:54:35.000Z",
+  "pushedAt": "2026-09-24T14:54:47.371Z",
+  "recent": [
+    "0d5a1e960de4fd39911be186ca58468d80a05361",
+    "c60ad95a98c2ae3346a0550ee3ce0deba035de4f",
+    "8ffa9c8bbd3c4b4511398c9880ee009ce431e464",
+    "728e08422aeacfac0b1c667ccc454bf8971006f5",
+    "7c9a288a9a9693ac6c6ba27e3024cbbf99358d8c",
+    "74b7b53569ef7ea1994bcd402ba825796698252b",
+    "d6b09a84c88dd6cebf1051407368ac62b5997269",
+    "7d55c803c4c2b7c89e5988494aec63dc6f8c2667",
+    "6db52aefdea668b699d8f7a9d564ebf1dce4f234",
+    "48d0ea91dd5d79117c776eab4d7dcffdb6bdec77",
+    "40828340a1b52fede76a3f7f1a90b5200deb4a6f",
+    "a4638ed3e92d04987e45d8f7c69162d326e1e5a7",
+    "63aaa8f03b9ed2071f33a2c77be2641a04a24d3a",
+    "331e766e28d99e54a001966fbe0c41601ebe378f",
+    "b6d8028182110fa7a95012b0ba19d073c5e75761",
+    "6ea7eac5f1248b9086cacdd1ba64c6cbc00820ba",
+    "917a07cef8012e94cf4ac3ef91cef33213995450",
+    "b32e938fd57a89520c756e035cbf34b231e8c45d",
+    "8e083969ac833bf5012415e0d4afa7d26bc31ff8",
+    "80c3763e22d688bfde3093c964ac00f054d7159f"
+  ]
+}
