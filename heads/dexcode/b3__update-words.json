@@ -3,10 +3,11 @@
   "product": "dexcode",
   "repo": "dexnotavailable/dexcode",
   "branch": "b3/update-words",
-  "commit": "ed86e9bb9e62640874a7a103a27b276b11d63139",
-  "committedAt": "2026-09-24T23:16:40.000Z",
-  "pushedAt": "2026-09-24T23:30:54.508Z",
+  "commit": "3a9d456b1045eb300648441589b39db065d6395b",
+  "committedAt": "2026-09-25T06:08:24.000Z",
+  "pushedAt": "2026-09-25T06:53:21.529Z",
   "recent": [
+    "3a9d456b1045eb300648441589b39db065d6395b",
     "ed86e9bb9e62640874a7a103a27b276b11d63139",
     "984f9c06cca2e36e53f1fd226fdde73cb5daae08",
     "e6d950edd3f0e600d11e74c331fb556e30c17758",
@@ -205,7 +206,6 @@
     "19a8b2a8373aa1d1fbe4c8e1716f8bba23d3adff",
     "1c523f01a82e6eb7e8ead09fdd982a448ab916ba",
     "ed4c475eaaa09a7b188902f7efed961a5ae5da0c",
-    "7efaae9a5883ce8ce18d00c4bae7574b2824fc35",
-    "2c4f6c4b0154276e783830d8e918d1a6e2667555"
+    "7efaae9a5883ce8ce18d00c4bae7574b2824fc35"
   ]
 }
