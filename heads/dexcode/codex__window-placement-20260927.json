@@ -3,10 +3,11 @@
   "product": "dexcode",
   "repo": "dexnotavailable/dexcode",
   "branch": "codex/window-placement-20260927",
-  "commit": "8fcd63828ef978954832c2a3c9dd9ef6ef4fc2e9",
-  "committedAt": "2026-09-27T09:57:01.000Z",
-  "pushedAt": "2026-09-27T09:57:16.701Z",
+  "commit": "f0390d1823c7977ca968eb7b35826b6c95419bd8",
+  "committedAt": "2026-09-27T10:00:48.000Z",
+  "pushedAt": "2026-09-27T10:01:01.322Z",
   "recent": [
+    "f0390d1823c7977ca968eb7b35826b6c95419bd8",
     "8fcd63828ef978954832c2a3c9dd9ef6ef4fc2e9",
     "8998b2ce6da9b4ad13cbcfcd572929c1c1e03a5b",
     "879906b7352cda1ac7706a5840bd0aec9729d518",
@@ -205,7 +206,6 @@
     "38d7dfbc55ad4265f6549928d491c9ce3adf7296",
     "4c8dd56d1e227656f9c96d06b00fc62aee3ca455",
     "837555d4a0b4e8a87f1254bc49bc37f5123c0941",
-    "a1eaf64627b21e1380e0a2a3a3104a8c1a5ea7cb",
-    "e0e2e259b93371701b021afcd1aae63a062b197b"
+    "a1eaf64627b21e1380e0a2a3a3104a8c1a5ea7cb"
   ]
 }
