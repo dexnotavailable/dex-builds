@@ -3,10 +3,11 @@
   "product": "dexcode",
   "repo": "dexnotavailable/dexcode",
   "branch": "codex/device-discovery-20260927",
-  "commit": "c017867e6889f3930097d431734967ef4f9b4c2d",
-  "committedAt": "2026-09-27T00:20:38.000Z",
-  "pushedAt": "2026-09-27T00:22:28.898Z",
+  "commit": "5ec05488d13ad20df8bd2b5ea7d14112141dcc63",
+  "committedAt": "2026-09-27T00:25:14.000Z",
+  "pushedAt": "2026-09-27T00:25:33.660Z",
   "recent": [
+    "5ec05488d13ad20df8bd2b5ea7d14112141dcc63",
     "c017867e6889f3930097d431734967ef4f9b4c2d",
     "5b904ee35308edf8fb0c6b551b0a8b344ad1fb38",
     "d2e48240d09fa28b3f23f9a3f0f357f15b388616",
@@ -205,7 +206,6 @@
     "35c9396b678c34814778b88a2667814906f67fe0",
     "8f1d18bcefda926792c6f59b82dc1ec6ac931f7d",
     "b71796c618cb0d4732100bf3210556e833a7f7ab",
-    "bbbd901003a1eff89f5e637ee9226a62685abdfb",
-    "98e03ae92a1b862b2407da742399ede52e6c8a5c"
+    "bbbd901003a1eff89f5e637ee9226a62685abdfb"
   ]
 }
