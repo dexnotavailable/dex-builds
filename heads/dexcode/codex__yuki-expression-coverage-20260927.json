@@ -3,10 +3,11 @@
   "product": "dexcode",
   "repo": "dexnotavailable/dexcode",
   "branch": "codex/yuki-expression-coverage-20260927",
-  "commit": "cf7ce3f621cbe5095f593552431e102b2b19d6f8",
-  "committedAt": "2026-09-27T01:46:10.000Z",
-  "pushedAt": "2026-09-27T01:46:31.070Z",
+  "commit": "69fe87d6710ab3c458e0426c97765227008782c7",
+  "committedAt": "2026-09-27T01:58:00.000Z",
+  "pushedAt": "2026-09-27T01:58:20.960Z",
   "recent": [
+    "69fe87d6710ab3c458e0426c97765227008782c7",
     "cf7ce3f621cbe5095f593552431e102b2b19d6f8",
     "f3ecf12fbe70f712c5fc67c9c2d754aa93f6defa",
     "2486c67880c77352e35177207a08cbe1a601516b",
@@ -205,7 +206,6 @@
     "f54f0d5bcc37fd9a7c121a99e51c8495d4a848d8",
     "5480ff15ade3a47ea5f7a1ad8587baf7342b7d8f",
     "624972191297a30a52b270c2293f15f259e34eb1",
-    "caaabc224ddc62d04a61491e6a3f51342018a5ae",
-    "f9b4f0c659dd4db25c3a13dd003cedc15ee7901f"
+    "caaabc224ddc62d04a61491e6a3f51342018a5ae"
   ]
 }
