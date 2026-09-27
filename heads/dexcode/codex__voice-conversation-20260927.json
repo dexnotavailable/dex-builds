@@ -3,10 +3,11 @@
   "product": "dexcode",
   "repo": "dexnotavailable/dexcode",
   "branch": "codex/voice-conversation-20260927",
-  "commit": "d4d9102be063103ae1a47460cc4f62b2250b28cf",
-  "committedAt": "2026-09-27T00:30:24.000Z",
-  "pushedAt": "2026-09-27T00:31:01.010Z",
+  "commit": "8d257398923340d9a10c02269e242456221f4690",
+  "committedAt": "2026-09-27T00:32:20.000Z",
+  "pushedAt": "2026-09-27T00:32:40.513Z",
   "recent": [
+    "8d257398923340d9a10c02269e242456221f4690",
     "d4d9102be063103ae1a47460cc4f62b2250b28cf",
     "b3c65f3d75bb214db2d3beb9983f49462c137a1c",
     "d18c402d1dd7662089450936b940d487ee1d6c9b",
@@ -205,7 +206,6 @@
     "caaabc224ddc62d04a61491e6a3f51342018a5ae",
     "f9b4f0c659dd4db25c3a13dd003cedc15ee7901f",
     "8b612a794af227c99e9dcb3fa8cb682d3c9a0f5a",
-    "35c9396b678c34814778b88a2667814906f67fe0",
-    "8f1d18bcefda926792c6f59b82dc1ec6ac931f7d"
+    "35c9396b678c34814778b88a2667814906f67fe0"
   ]
 }
