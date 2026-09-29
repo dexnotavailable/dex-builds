@@ -1,0 +1,52 @@
+{
+  "projects": [
+    {
+      "key": "dexcode",
+      "name": "dexCode",
+      "repo": "dexnotavailable/dexcode",
+      "emoji": "🧠",
+      "color": "#8b5cf6",
+      "blurb": "the local agent desktop",
+      "feedChannel": "ships-dexcode",
+      "pingRole": "ping-dexcode",
+      "forumTag": "dexcode"
+    },
+    {
+      "key": "dexclient",
+      "name": "dexClient",
+      "repo": "dexnotavailable/dexclient",
+      "emoji": "📦",
+      "color": "#22c55e",
+      "blurb": "the installer, updater and launcher",
+      "feedChannel": "ships-dexclient",
+      "pingRole": "ping-dexclient",
+      "forumTag": "dexclient"
+    },
+    {
+      "key": "dexplace",
+      "name": "dex.place",
+      "repo": "dexnotavailable/dex.place",
+      "emoji": "🌐",
+      "color": "#f59e0b",
+      "blurb": "the website",
+      "site": "https://dex.place",
+      "feedChannel": "ships-dexplace",
+      "pingRole": "ping-dexplace",
+      "forumTag": "dexplace"
+    }
+  ],
+  "poll": {
+    "commitsSeconds": 60,
+    "activitySeconds": 180,
+    "deploySeconds": 30
+  },
+  "feed": {
+    "maxCommitsPerPost": 10,
+    "maxPushesPerCycle": 12,
+    "ignoreBranches": []
+  },
+  "digest": {
+    "hour": 10,
+    "timezone": "Asia/Ho_Chi_Minh"
+  }
+}

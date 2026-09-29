@@ -1,0 +1,21 @@
+{
+  "name": "dex-devbot",
+  "version": "1.0.0",
+  "private": true,
+  "description": "GOJO SATORU: the dev Discord bot for the sam altman office server. Commit feeds, source access and feedback for dexcode, dexclient and dex.place.",
+  "type": "module",
+  "main": "src/index.mjs",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node src/index.mjs",
+    "provision": "node src/index.mjs --provision-only",
+    "test": "node --test \"test/*.test.mjs\"",
+    "harness": "node ops/dev-interact.mjs"
+  },
+  "license": "UNLICENSED",
+  "dependencies": {
+    "discord.js": "14.27.0"
+  }
+}
