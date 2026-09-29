@@ -3,10 +3,12 @@
   "product": "dexcode",
   "repo": "dexnotavailable/dexcode",
   "branch": "claude-core/phone-brain-20260929",
-  "commit": "ce93bf78d1c681dc04c4c5a5825b280a19e818e4",
-  "committedAt": "2026-09-29T07:07:34.000Z",
-  "pushedAt": "2026-09-29T14:40:11.713Z",
+  "commit": "e9ca7a2a03e6ad091d95dd1908fcebbc9926803e",
+  "committedAt": "2026-09-29T21:28:44.000Z",
+  "pushedAt": "2026-09-29T21:29:45.534Z",
   "recent": [
+    "e9ca7a2a03e6ad091d95dd1908fcebbc9926803e",
+    "dbdf375ea62a808e25ebb9d56849cd3efa8bad48",
     "ce93bf78d1c681dc04c4c5a5825b280a19e818e4",
     "353da12b6105da4e7f977e25176572ff3d63c87a",
     "5bcd140b82e2401fa457447185cd4874d2334410",
@@ -204,8 +206,6 @@
     "c5b2fe70986d90603abab66cbfa372dfd6a370e8",
     "425ff5d659226b0ddd70236c865f97719cad2ab5",
     "7fe0a77a667019a6aaf8b7a5cd811a6ce1c08c83",
-    "36ebd01ff055123d179578bc50d0daaa3d808b28",
-    "fb63d9d2ead5c475b50ab2bfe3e7951069a8e41b",
-    "f81069269486986fd4bd0bb17db7410600af015d"
+    "36ebd01ff055123d179578bc50d0daaa3d808b28"
   ]
 }
