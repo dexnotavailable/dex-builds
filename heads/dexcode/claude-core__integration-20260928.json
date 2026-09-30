@@ -3,10 +3,11 @@
   "product": "dexcode",
   "repo": "dexnotavailable/dexcode",
   "branch": "claude-core/integration-20260928",
-  "commit": "95dc38eb022687ab763d7ed0b995ecce0951ea16",
-  "committedAt": "2026-09-30T08:10:11.000Z",
-  "pushedAt": "2026-09-30T08:10:27.319Z",
+  "commit": "a4d24bcc329a67c3c383579dd81dc701ba30b381",
+  "committedAt": "2026-09-30T08:49:28.000Z",
+  "pushedAt": "2026-09-30T08:49:45.758Z",
   "recent": [
+    "a4d24bcc329a67c3c383579dd81dc701ba30b381",
     "95dc38eb022687ab763d7ed0b995ecce0951ea16",
     "3191e68f6c2b7b1218f7d8e921443025470dc59a",
     "6cd1528c98b6b5e43aee618c75cfa8ee310d77ec",
@@ -205,7 +206,6 @@
     "2a6da5e7209ddfe9a70a5d065df0e1c9cc99497f",
     "de8331c865c85a2ca78d574603b7b368181245d6",
     "c5b2fe70986d90603abab66cbfa372dfd6a370e8",
-    "425ff5d659226b0ddd70236c865f97719cad2ab5",
-    "7fe0a77a667019a6aaf8b7a5cd811a6ce1c08c83"
+    "425ff5d659226b0ddd70236c865f97719cad2ab5"
   ]
 }
