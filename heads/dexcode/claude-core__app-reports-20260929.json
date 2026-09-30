@@ -3,10 +3,11 @@
   "product": "dexcode",
   "repo": "dexnotavailable/dexcode",
   "branch": "claude-core/app-reports-20260929",
-  "commit": "5a846fbb5f9389670ffcd2819f0d9120ae637f26",
-  "committedAt": "2026-09-30T04:50:10.000Z",
-  "pushedAt": "2026-09-30T04:50:26.441Z",
+  "commit": "ba5044f69f0d720c850a76e52e1a11bd909771d0",
+  "committedAt": "2026-09-30T05:04:49.000Z",
+  "pushedAt": "2026-09-30T05:05:06.018Z",
   "recent": [
+    "ba5044f69f0d720c850a76e52e1a11bd909771d0",
     "5a846fbb5f9389670ffcd2819f0d9120ae637f26",
     "51b31048d088a4cfcc564a96269e3706a32dbcf8",
     "717f9be3230a252075932b1af16d855b2cea2b7c",
@@ -205,7 +206,6 @@
     "fb63d9d2ead5c475b50ab2bfe3e7951069a8e41b",
     "f81069269486986fd4bd0bb17db7410600af015d",
     "ff72ce28084f909da120aaff617b3c434716bf1a",
-    "f57bc51da2d54410bc27f4c6ea9bd3653c6f977f",
-    "078685f81f3d78b90b10a383bbc825a862fc0a1a"
+    "f57bc51da2d54410bc27f4c6ea9bd3653c6f977f"
   ]
 }
