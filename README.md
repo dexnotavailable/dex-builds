@@ -137,3 +137,11 @@ export default {
 | `issue:closed` | activity | `{ project, number, title, url, closedBy, reason }` (reason = GitHub state_reason: completed, not_planned or null) |
 | `issue:reopened` | activity | `{ project, number, title, url }` |
 | `push` | feed | `{ project, branch, base, head, commits, forced, created }` |
+
+## Gojo conversations and automatic fixes
+
+Gojo observes visible home-server messages and its own DMs, chooses reply or silence, and keeps per-context CLI sessions and durable transcripts. It understands a fresh topic after a long gap, and its own messages, webhooks and trusted app feedback cannot start response or bug-report loops.
+
+An observed dexCode failure is recorded immediately and handed to the authoritative current implementation chat. The fix workflow is reproduce, repair, verify, update canon, scoped commit/push, and return only correlated reporter-safe progress or questions. Native Codex tool delivery is verified separately from queued work; Claude handoffs require Computer Use and transcript-echo proof. The bot keeps generation tools disabled.
+
+[Behaviour canon, configuration, transport and proof boundaries](docs/gojo.md)

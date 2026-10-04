@@ -4,6 +4,25 @@ import { fileURLToPath } from 'node:url';
 
 export const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 
+export function resolveNativeExecutable(provider, override = null, environment = process.env) {
+  if (override) return override; // An explicit machine route is never silently substituted.
+  const local = environment.LOCALAPPDATA ?? path.join(environment.USERPROFILE ?? 'C:\\Users\\sanic', 'AppData', 'Local');
+  const roaming = environment.APPDATA ?? path.join(environment.USERPROFILE ?? 'C:\\Users\\sanic', 'AppData', 'Roaming');
+  const roots = provider === 'codex' ? [path.join(local, 'OpenAI', 'Codex', 'bin'), path.join(local, 'Programs', 'OpenAI', 'Codex', 'bin')] : [path.join(roaming, 'Claude', 'claude-code')];
+  const candidates = [];
+  const scan = (directory, depth) => {
+    try {
+      for (const entry of fs.readdirSync(directory, { withFileTypes: true }).slice(0, 100)) {
+        const file = path.join(directory, entry.name);
+        if (entry.isFile() && entry.name.toLowerCase() === `${provider}.exe`) candidates.push({ file, changedAt: fs.statSync(file).mtimeMs });
+        else if (entry.isDirectory() && depth > 0) scan(file, depth - 1);
+      }
+    } catch { /* A missing installed app is an unavailable route. */ }
+  };
+  for (const root of roots) scan(root, provider === 'codex' ? 1 : 2);
+  return candidates.sort((a, b) => b.changedAt - a.changedAt)[0]?.file ?? null;
+}
+
 function readJson(file) {
   return JSON.parse(fs.readFileSync(file, 'utf8'));
 }
@@ -49,6 +68,16 @@ export function loadConfig(home) {
   const localPath = path.join(home, 'local.json');
   let local = {};
   if (fs.existsSync(localPath)) local = readJson(localPath);
+  const gojo = local.gojo ?? {};
+  for (const [field, fallback, minimum, maximum] of [['heartbeatSeconds', 3600, 60, 86400], ['timeoutSeconds', 600, 30, 1800], ['projectsPerPost', 3, 1, 8], ['messagesPerBatch', 8, 1, 20], ['chatterDebounceMs', 1200, 0, 5000], ['conversationIdleSeconds', 900, 60, 86400]]) {
+    const value = gojo[field] ?? fallback;
+    if (!Number.isInteger(value) || value < minimum || value > maximum) throw new Error(`gojo.${field} must be an integer ${minimum}..${maximum}`);
+  }
+  if (gojo.quietHours) {
+    for (const field of ['start', 'end']) if (!Number.isInteger(gojo.quietHours[field]) || gojo.quietHours[field] < 0 || gojo.quietHours[field] > 23) throw new Error(`gojo.quietHours.${field} must be 0..23`);
+    new Intl.DateTimeFormat('en-US', { timeZone: gojo.quietHours.timezone ?? 'Asia/Bangkok' }).format();
+  }
+  if (gojo.relay?.projectRoots !== undefined && (!Array.isArray(gojo.relay.projectRoots) || gojo.relay.projectRoots.some((root) => typeof root !== 'string' || !/^D:[\\/]/i.test(root) || !path.win32.isAbsolute(root) || /[\r\n\0]/.test(root)))) throw new Error('gojo.relay.projectRoots must be an array of absolute D-backed directories');
 
   const projects = projectsFile.projects;
   const keys = new Set();
@@ -68,6 +97,41 @@ export function loadConfig(home) {
     poll: projectsFile.poll,
     feed: projectsFile.feed,
     digest: projectsFile.digest,
+    gojo: {
+      enabled: local.gojo?.enabled ?? true,
+      channel: local.gojo?.channel ?? 'water-cooler',
+      heartbeatSeconds: local.gojo?.heartbeatSeconds ?? 3600,
+      timeoutSeconds: local.gojo?.timeoutSeconds ?? 600,
+      projectsPerPost: local.gojo?.projectsPerPost ?? 3,
+      ledgerRoot: local.gojo?.ledgerRoot ?? 'D:\\Dex\\Automation\\ProjectLedger',
+      threadSnapshotFile: local.gojo?.threadSnapshotFile ?? path.join(home, 'gojo-thread-snapshot.json'),
+      publicProjectIds: local.gojo?.publicProjectIds ?? [],
+      ignoreProjectIds: local.gojo?.ignoreProjectIds ?? [],
+      ignoreChannelIds: local.gojo?.ignoreChannelIds ?? [],
+      quietHours: local.gojo?.quietHours ?? null,
+      messagesPerBatch: local.gojo?.messagesPerBatch ?? 8,
+      chatterDebounceMs: local.gojo?.chatterDebounceMs ?? 1200,
+      conversationIdleSeconds: local.gojo?.conversationIdleSeconds ?? 900,
+      relay: {
+        enabled: local.gojo?.relay?.enabled ?? true,
+        channelKeys: local.gojo?.relay?.channelKeys ?? ['ships-dexcode'],
+        channelIds: local.gojo?.relay?.channelIds ?? [],
+        duplicateWindowSeconds: local.gojo?.relay?.duplicateWindowSeconds ?? 900,
+        reportsPerUserPerHour: local.gojo?.relay?.reportsPerUserPerHour ?? 6,
+        criticalReportsPerUserPerHour: local.gojo?.relay?.criticalReportsPerUserPerHour ?? 12,
+        projectRoots: local.gojo?.relay?.projectRoots ?? [],
+      },
+      codex: {
+        enabled: true,
+        executable: resolveNativeExecutable('codex', local.gojo?.codex?.executable),
+        model: 'gpt-6.1-sol', effort: 'xhigh',
+      },
+      claude: {
+        enabled: local.gojo?.claude?.enabled ?? true,
+        executable: resolveNativeExecutable('claude', local.gojo?.claude?.executable),
+        model: 'claude-sonnet-5-5', effort: 'medium',
+      },
+    },
     layout,
     local: {
       guildId: local.guildId ?? null,

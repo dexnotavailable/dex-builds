@@ -1,6 +1,6 @@
 import { EventEmitter } from 'node:events';
 import path from 'node:path';
-import { ActivityType, Client, Events, GatewayIntentBits } from 'discord.js';
+import { ActivityType, Client, Events, GatewayIntentBits, Partials } from 'discord.js';
 import { loadConfig } from './core/config.mjs';
 import { createLogger } from './core/log.mjs';
 import { StateStore } from './core/state.mjs';
@@ -32,7 +32,8 @@ export function createApp(args, { logFile = 'devbot.log', exit = (code) => proce
   const state = new StateStore(path.join(args.home, 'state'), logRoot.child('state'));
   const github = new GitHub({ token: process.env.GITHUB_TOKEN, log: logRoot.child('github') });
   const client = new Client({
-    intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers],
+    intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildMessages, GatewayIntentBits.DirectMessages, GatewayIntentBits.MessageContent],
+    partials: [Partials.Channel, Partials.Message],
     allowedMentions: { parse: [] },
   });
   const flags = state.get('flags', { paused: false });

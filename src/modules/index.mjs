@@ -12,5 +12,6 @@ import source from './source.mjs';
 import worktree from './worktree.mjs';
 import review from './review.mjs';
 import feedback from './feedback.mjs';
+import gojo from './gojo.mjs';
 
-export const modules = [provision, admin, status, onboarding, access, feed, activity, deploys, digest, source, worktree, review, feedback];
+export const modules = [provision, admin, status, onboarding, access, feed, activity, deploys, digest, source, worktree, review, feedback, gojo];
