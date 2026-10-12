@@ -3,10 +3,11 @@
   "product": "dexcode",
   "repo": "dexnotavailable/dexcode",
   "branch": "claude/c8-harness-20261010",
-  "commit": "6757a260741152002919d38eb6dfddefcbec704f",
-  "committedAt": "2026-10-12T19:36:22.000Z",
-  "pushedAt": "2026-10-12T20:25:27.723Z",
+  "commit": "8462ca32366e62be39154f88cc11722d8e65e215",
+  "committedAt": "2026-10-12T20:29:03.000Z",
+  "pushedAt": "2026-10-12T21:11:06.166Z",
   "recent": [
+    "8462ca32366e62be39154f88cc11722d8e65e215",
     "6757a260741152002919d38eb6dfddefcbec704f",
     "6561d98b1ee6b4f8e0309734284e4aa40bbe05b3",
     "ac112ecfee8ec3a4976b916fc92d318058e87b86",
@@ -205,7 +206,6 @@
     "67a32cebcaf96e0b959b6f3671bc119bbedc6f76",
     "43b6138a24f6d352e9493b0d427a601b135729d7",
     "b455a84a25db2488c43844832c656561235906aa",
-    "2de17776bc97a365af2068e7530a1ae1d9db2865",
-    "dd87264fe7921cd744a9b7418f46e23dfb12034f"
+    "2de17776bc97a365af2068e7530a1ae1d9db2865"
   ]
 }
