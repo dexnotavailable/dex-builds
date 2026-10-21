@@ -96,6 +96,7 @@ export function loadConfig(home) {
     },
     poll: projectsFile.poll,
     feed: projectsFile.feed,
+    blog: projectsFile.blog ?? null,
     digest: projectsFile.digest,
     gojo: {
       enabled: local.gojo?.enabled ?? true,

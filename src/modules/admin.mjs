@@ -4,11 +4,12 @@ import { codeBlock, truncate } from '../core/format.mjs';
 import { redactSecrets } from '../core/redact.mjs';
 import { provisionLayout } from './provision.mjs';
 import { refreshFrontDesk } from './onboarding.mjs';
+import { repostBlog } from './blog.mjs';
 
 // /admin: owner controls. Hidden from non-admins by default permissions; still owner-checked.
 
-// `feed`, `feed-dexcode`, `activity`… but not `feedback-issues`.
-const POLLERS = /^(feed|activity|deploys)(?![a-z])/i;
+// `feed`, `feed-dexcode`, `activity`, `blog`… but not `feedback-issues`.
+const POLLERS = /^(feed|activity|deploys|blog)(?![a-z])/i;
 
 /** Scheduler jobs that /admin poll kicks. */
 export function pollTargets(jobs) {
@@ -49,7 +50,7 @@ async function setPaused(interaction, ctx, paused) {
   ctx.flags.paused = paused;
   ctx.state.save('flags', { immediate: true });
   const content = paused
-    ? `${already ? 'already paused.' : 'paused.'} the feed, activity and deploy pollers and the daily standup skip their runs until \`/admin resume\`. commands keep working.`
+    ? `${already ? 'already paused.' : 'paused.'} the feed, activity, deploy and blog pollers and the daily standup skip their runs until \`/admin resume\`. commands keep working.`
     : `${already ? 'already live.' : 'resumed.'} pollers run again from their next tick.`;
   await interaction.reply({ content, flags: MessageFlags.Ephemeral });
 }
@@ -70,6 +71,12 @@ async function poll(interaction, ctx) {
   await interaction.editReply(pollReport(results, { paused: ctx.flags.paused }));
 }
 
+async function blog(interaction, ctx) {
+  await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+  const { slug, messages } = await repostBlog(ctx, interaction.options.getString('post', true));
+  await interaction.editReply(`posted \`${slug}\` again in ${messages} messages. the old copy is gone.`);
+}
+
 async function resync(interaction, ctx) {
   await interaction.deferReply({ flags: MessageFlags.Ephemeral });
   await ctx.router.registerCommands();
@@ -83,6 +90,7 @@ const SUBCOMMANDS = {
   pause: (interaction, ctx) => setPaused(interaction, ctx, true),
   resume: (interaction, ctx) => setPaused(interaction, ctx, false),
   poll,
+  blog,
   resync,
 };
 
@@ -96,9 +104,15 @@ export default {
       .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
       .addSubcommand((s) => s.setName('restart').setDescription('pull the latest devbot and restart gojo'))
       .addSubcommand((s) => s.setName('provision').setDescription('re-apply the server layout: names, topics, permissions, order'))
-      .addSubcommand((s) => s.setName('pause').setDescription('pause the feed, activity and deploy pollers and the standup'))
+      .addSubcommand((s) => s.setName('pause').setDescription('pause the feed, activity, deploy and blog pollers and the standup'))
       .addSubcommand((s) => s.setName('resume').setDescription('resume the pollers'))
-      .addSubcommand((s) => s.setName('poll').setDescription('run the feed, activity and deploy pollers now'))
+      .addSubcommand((s) => s.setName('poll').setDescription('run the feed, activity, deploy and blog pollers now'))
+      .addSubcommand((s) =>
+        s
+          .setName('blog')
+          .setDescription('post a blog post to the water cooler again, replacing the old copy')
+          .addStringOption((o) => o.setName('post').setDescription('the post file name, without .md').setRequired(true)),
+      )
       .addSubcommand((s) => s.setName('resync').setDescription('re-register the slash commands')),
   ],
 

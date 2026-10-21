@@ -7,6 +7,7 @@ import access from './access.mjs';
 import feed from './feed.mjs';
 import activity from './activity.mjs';
 import deploys from './deploys.mjs';
+import blog from './blog.mjs';
 import digest from './digest.mjs';
 import source from './source.mjs';
 import worktree from './worktree.mjs';
@@ -14,4 +15,4 @@ import review from './review.mjs';
 import feedback from './feedback.mjs';
 import gojo from './gojo.mjs';
 
-export const modules = [provision, admin, status, onboarding, access, feed, activity, deploys, digest, source, worktree, review, feedback, gojo];
+export const modules = [provision, admin, status, onboarding, access, feed, activity, deploys, blog, digest, source, worktree, review, feedback, gojo];

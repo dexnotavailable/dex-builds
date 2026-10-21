@@ -38,7 +38,15 @@
   "poll": {
     "commitsSeconds": 60,
     "activitySeconds": 180,
-    "deploySeconds": 30
+    "deploySeconds": 30,
+    "blogSeconds": 300
+  },
+  "blog": {
+    "project": "dexplace",
+    "path": "content/blog",
+    "ref": "main",
+    "channel": "water-cooler",
+    "settleMinutes": 10
   },
   "feed": {
     "maxCommitsPerPost": 10,

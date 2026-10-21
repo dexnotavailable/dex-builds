@@ -4,9 +4,12 @@ This `devbot` branch of `dex-builds` holds the Discord bot for the dex dev serve
 
 - posts **every push to every branch** of dexcode, dexclient and dex.place into per-project channels, with diff, file-list and discussion-thread buttons
 - posts PRs, issues, failed CI runs, dex.place deploys and a daily standup
+- posts every dex.place blog post **in full** to `#water-cooler`: real paragraphs and headings, tables drawn as images, figures as attachments (see [Blog posts](#blog-posts))
 - lets trusted reviewers read source, diffs, branches and Dex's live local worktrees from Discord
 - turns feedback into forum posts and GitHub issues, and handles GitHub repo-access requests with a one-click owner approval
 - keeps the server layout as code (`config/layout.json`)
+- observes visible chat, decides when to answer, and posts short hourly project catch-ups to `#water-cooler` when there is news ([Gojo chat and memory](docs/gojo.md))
+- saves dexCode bug/test-failure reports for the working chat and returns correlated fix progress and questions to their reporter ([fix relay](docs/gojo.md#dexcode-fix-relay))
 
 It runs on Dex's PC as the scheduled task `\Dex\Dex Devbot`.
 
@@ -28,7 +31,7 @@ It runs on Dex's PC as the scheduled task `\Dex\Dex Devbot`.
 | `/clone` | everyone | how to clone a project and check a branch out as a worktree |
 | `/standup` | staff | preview today's standup digest |
 | `/hire` · `/fire` | owner | give or take the `member of technical staff` badge |
-| `/admin …` | owner | restart, re-apply layout, pause/resume feeds, poll now, resync commands |
+| `/admin …` | owner | restart, re-apply layout, pause/resume feeds, poll now, re-post a blog post (`/admin blog`), resync commands |
 
 "Staff" means the `member of technical staff` role; the owner counts as staff everywhere.
 
@@ -78,6 +81,8 @@ src/core/                shared plumbing (no Discord features live here)
   scheduler.mjs          non-overlapping interval jobs, rate-limit aware, pausable
   projects.mjs           project/ref slash options, ref autocomplete, UserError
   gitfmt.mjs             commit lines, file lists, diff payloads (shared look)
+  blogmd.mjs             blog markdown -> ordered Discord messages (text, pictures, tables), pure
+  tableimg.mjs           a markdown table drawn as a PNG (Discord has no tables)
   format.mjs             Discord limits, truncation, code blocks, attachments
   redact.mjs             redactSecrets(), isSecretPath()
   log.mjs                redacting logger; warn/error also reach #compute-bill
@@ -86,6 +91,24 @@ ops/                     supervisor, launcher, task installer, credential reader
 config/                  projects.json (what to watch), layout.json (server layout)
 test/                    node:test unit tests for the pure parts
 ```
+
+`src/modules/gojo.mjs` owns addressed chat and hourly updates. Its `core/gojo-*` helpers own the read-only CLI route, public/private context boundary, owner action policy and durable memory. `ops/local-thread-snapshot.mjs` supplies a bounded local Codex/Claude snapshot; private thread summaries never enter public updates.
+
+### Blog posts
+
+`src/modules/blog.mjs` watches `content/blog/*.md` on the `main` branch of the dex.place repo (config/projects.json `blog`) and posts each new post in full to `#water-cooler`. Posts marked `placeholder: true` are skipped. A post goes out once its file has sat unchanged for `settleMinutes` (default 10), because posts tend to get a quick "update" commit right after the first push. It is checked every `poll.blogSeconds` (5 minutes); `/admin poll` checks now.
+
+How a post becomes Discord messages (`src/core/blogmd.mjs`, pure and unit-tested):
+
+- Discord draws attachments *under* a message's text, so the post is cut into parts and sent in order: a text message, then an image as its own message, then the text that follows it. Nothing is ever glued to the bottom of unrelated text.
+- Title as a big heading with date and reading time, the summary as a quote, and a **read it on dex.place** link button. Sections become `##` headings and sub-sections `###`, each with an emoji picked by keyword. A new section starts a new message, and a heading is never the last line of a message.
+- Bullets are emoji (🔹), numbered lists use keycap emoji, task lists use ☑️ and ⬜, `> [!NOTE]`-style callouts become quotes with an icon (a `**TL;DR**` callout gets ⚡), figure captions become small text (`-#`).
+- Tables become PNG images (`src/core/tableimg.mjs`, drawn with @napi-rs/canvas and the Windows Segoe UI / Segoe UI Emoji fonts). Wide tables get a wider canvas so they stay short. The table's text goes in the image's alt text. Status cells (✅ done, ▶ in progress, ○ not started, missed) are coloured.
+- Pictures are read from the repo's `public/` folder (never from other sites) and attached with their alt text. An SVG is converted to a PNG. A picture that cannot be loaded, is too large or lives off-site becomes a link line instead of failing the post. A code block too long for a message is attached as a file.
+- Every message is sent with link previews off and mentions off. Text goes through `redactSecrets` like everything else.
+- Messages are recorded as they go out (`state.blog.posts[slug].sent`), so a crash or a failed send resumes where it stopped. After 3 failed sends a post stops retrying until `/admin blog`.
+
+A post that is edited after it was posted is **not** re-posted automatically (the log says so once). `/admin blog post:<file name without .md>` deletes the old messages and posts the current version.
 
 ### Module contract
 
@@ -125,6 +148,7 @@ export default {
 | `activity` | activity | `{ [project]: { seededAt, pulls: {n: {...}}, issues: {n: {...}}, runs: {...}, lastIssueCheck } }` |
 | `deploys` | deploys | `{ [project]: { lastSha, lastDeployedAt, lastFailedAt, seen: [sha], history: [{ sha, at }] } }` |
 | `digest` | digest | `{ lastPostedDate }` |
+| `blog` | blog | `{ posts: { [slug]: { blob, title, total, sent: [messageId], done, failures, postedAt } }, skipped: { [slug]: blob }, noted: { [slug]: blob } }` |
 | `onboarding` | onboarding | `{ guideMessageId, panelMessageId, joins: {userId: cardMessageId}, joinWatermark }` |
 | `access` | access | `{ seq, requests: {id: { status: pending\|approved\|denied\|revoked, github, readTier, … }}, grants: {userId: {...}} }` |
 | `feedback` | feedback | `{ threads: {threadId: { project, kind, title, status: 'open'\|'tracked'\|'shipped'\|'closed', issue: {repo, number, url} \| null, authorId, createdAt }}, issues: {'owner/repo#n': threadId} }` |
@@ -137,11 +161,3 @@ export default {
 | `issue:closed` | activity | `{ project, number, title, url, closedBy, reason }` (reason = GitHub state_reason: completed, not_planned or null) |
 | `issue:reopened` | activity | `{ project, number, title, url }` |
 | `push` | feed | `{ project, branch, base, head, commits, forced, created }` |
-
-## Gojo conversations and automatic fixes
-
-Gojo observes visible home-server messages and its own DMs, chooses reply or silence, and keeps per-context CLI sessions and durable transcripts. It understands a fresh topic after a long gap, and its own messages, webhooks and trusted app feedback cannot start response or bug-report loops.
-
-An observed dexCode failure is recorded immediately and handed to the authoritative current implementation chat. The fix workflow is reproduce, repair, verify, update canon, scoped commit/push, and return only correlated reporter-safe progress or questions. Native Codex tool delivery is verified separately from queued work; Claude handoffs require Computer Use and transcript-echo proof. The bot keeps generation tools disabled.
-
-[Behaviour canon, configuration, transport and proof boundaries](docs/gojo.md)
