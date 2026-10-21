@@ -104,8 +104,15 @@ export async function provisionLayout(ctx, { apply = false } = {}) {
     } else if (apply) {
       const differs = role.name !== wanted.name || (role.colors?.primaryColor ?? role.color) !== color || role.hoist !== wanted.hoist || role.mentionable !== wanted.mentionable;
       if (differs) {
-        await role.edit({ ...wanted, reason });
-        updated.push(`role ${spec.name}`);
+        try {
+          await role.edit({ ...wanted, reason });
+          updated.push(`role ${spec.name}`);
+        } catch (err) {
+          // Discord only lets GOJO edit roles strictly below its own (ties included). A cosmetic
+          // role edit must never stop the bot from starting.
+          if (err?.code !== 50013) throw err;
+          log.warn(`can't edit role ${spec.name}: drag GOJO's role above it in Server Settings > Roles`);
+        }
       }
     }
     ids.roles[spec.key] = role.id;
@@ -138,8 +145,13 @@ export async function provisionLayout(ctx, { apply = false } = {}) {
       pos -= 1;
     }
     if (positions.length) {
-      await guild.roles.setPositions(positions);
-      updated.push('role order');
+      try {
+        await guild.roles.setPositions(positions);
+        updated.push('role order');
+      } catch (err) {
+        if (err?.code !== 50013) throw err;
+        log.warn("can't reorder the badges: drag GOJO's role to the top in Server Settings > Roles");
+      }
     }
     // @everyone base permissions
     const everyone = guild.roles.everyone;
