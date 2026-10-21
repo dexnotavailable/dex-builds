@@ -213,7 +213,7 @@ export function blockedNotice(blocked) {
 }
 
 export function denialDm(github) {
-  return `your github access request for \`${github}\` was declined for now. the board is one guy and he said not yet. you can still hang around and post feedback in #rlhf; ask dex directly if you think that's wrong.`;
+  return `your github access request for \`${github}\` was declined for now. the board is one guy and he said not yet. you can still hang around and post feedback in #feedback; ask dex directly if you think that's wrong.`;
 }
 
 export function buildAccessList(state, { now = Date.now() } = {}) {
@@ -254,7 +254,7 @@ export function buildAccessStatus({ request, grant, live = {} }) {
       else lines.push(`• ${repoShort(repo)}: active (${role})`);
     }
   }
-  if (!lines.length) return 'no request on file. `/access request github:<you>` or the 🎟️ button in #front-desk.';
+  if (!lines.length) return 'no request on file. `/access request github:<you>` or the 🎟️ button in #welcome.';
   return truncate(lines.join('\n'), 1900);
 }
 
@@ -621,7 +621,7 @@ export default {
   },
 
   components: {
-    /** The 🎟️ button in #front-desk. */
+    /** The 🎟️ button in #welcome. */
     async open(interaction, ctx) {
       const state = st(ctx);
       const prefill = pendingRequestOf(state, interaction.user.id)?.github ?? state.grants[interaction.user.id]?.github ?? '';

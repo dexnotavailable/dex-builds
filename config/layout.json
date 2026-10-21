@@ -1,7 +1,7 @@
 {
-  "$comment": "Server layout as code. Keys are stable; names, topics and colours can change freely. `adopt` lists names of pre-existing channels/categories to take over (renamed) instead of creating new ones. Access presets are defined in `presets` and resolved by src/modules/provision.mjs.",
+  "$comment": "Server layout as code. Keys are stable (code and state refer to them); names, topics and colours can change freely. `adopt` lists names of pre-existing channels/categories to take over (renamed) instead of creating new ones. Access presets are defined in `presets` and resolved by src/modules/provision.mjs. The bot re-applies this file automatically on the first start after it changes.",
   "guild": {
-    "description": "the sam altman office. dexcode, dexclient and dex.place get built, reviewed and roasted here.",
+    "description": "the sam altman office. dexcode, dexclient and dex.place get built, tested and roasted here.",
     "icon": "assets/server-icon.png",
     "systemChannel": "water-cooler",
     "afkChannel": "the-blip",
@@ -12,6 +12,7 @@
   "roles": [
     { "key": "ceo", "name": "ceo (reinstated)", "color": "#f5c542", "hoist": true, "mentionable": false, "grantToOwner": true },
     { "key": "staff", "name": "member of technical staff", "color": "#5b8cff", "hoist": true, "mentionable": true },
+    { "key": "tester", "name": "red teamer", "color": "#ef4444", "hoist": true, "mentionable": false },
     { "key": "waitlist", "name": "on the waitlist", "color": "#8a8f98", "hoist": true, "mentionable": false },
     { "key": "ping-dexcode", "name": "dexcode early access", "color": "#8b5cf6", "hoist": false, "mentionable": true, "selfAssign": true, "project": "dexcode" },
     { "key": "ping-dexclient", "name": "dexclient early access", "color": "#22c55e", "hoist": false, "mentionable": true, "selfAssign": true, "project": "dexclient" },
@@ -23,6 +24,18 @@
       "everyone": { "allow": ["ViewChannel", "ReadMessageHistory", "AddReactions", "UseApplicationCommands"], "deny": ["SendMessages", "CreatePublicThreads", "CreatePrivateThreads"] },
       "bot": { "allow": ["ViewChannel", "SendMessages", "EmbedLinks", "AttachFiles", "ReadMessageHistory", "PinMessages"] }
     },
+    "crew": {
+      "everyone": { "deny": ["ViewChannel"] },
+      "tester": { "allow": ["ViewChannel", "SendMessages", "ReadMessageHistory", "AddReactions", "AttachFiles", "EmbedLinks", "CreatePublicThreads", "SendMessagesInThreads", "UseApplicationCommands"] },
+      "staff": { "allow": ["ViewChannel", "SendMessages", "ReadMessageHistory", "AddReactions", "AttachFiles", "EmbedLinks", "CreatePublicThreads", "SendMessagesInThreads", "UseApplicationCommands"] },
+      "bot": { "allow": ["ViewChannel", "SendMessages", "EmbedLinks", "AttachFiles", "ReadMessageHistory", "CreatePublicThreads", "SendMessagesInThreads", "ManageThreads"] }
+    },
+    "crew-forum": {
+      "everyone": { "deny": ["ViewChannel"] },
+      "tester": { "allow": ["ViewChannel", "SendMessages", "SendMessagesInThreads", "ReadMessageHistory", "AddReactions", "AttachFiles", "EmbedLinks", "UseApplicationCommands"] },
+      "staff": { "allow": ["ViewChannel", "SendMessages", "SendMessagesInThreads", "ReadMessageHistory", "AddReactions", "AttachFiles", "EmbedLinks", "UseApplicationCommands"] },
+      "bot": { "allow": ["ViewChannel", "SendMessages", "SendMessagesInThreads", "ManageThreads", "EmbedLinks", "AttachFiles", "ReadMessageHistory"] }
+    },
     "feed": {
       "everyone": { "deny": ["ViewChannel", "SendMessages"] },
       "staff": { "allow": ["ViewChannel", "ReadMessageHistory", "AddReactions", "CreatePublicThreads", "SendMessagesInThreads", "UseApplicationCommands"], "deny": ["SendMessages"] },
@@ -33,10 +46,6 @@
       "staff": { "allow": ["ViewChannel", "SendMessages", "ReadMessageHistory", "AddReactions", "AttachFiles", "EmbedLinks", "CreatePublicThreads", "SendMessagesInThreads", "UseApplicationCommands"] },
       "bot": { "allow": ["ViewChannel", "SendMessages", "EmbedLinks", "AttachFiles", "ReadMessageHistory", "CreatePublicThreads", "SendMessagesInThreads", "ManageThreads"] }
     },
-    "forum": {
-      "everyone": { "allow": ["ViewChannel", "SendMessages", "SendMessagesInThreads", "ReadMessageHistory", "AddReactions", "AttachFiles", "EmbedLinks"] },
-      "bot": { "allow": ["ViewChannel", "SendMessages", "SendMessagesInThreads", "ManageThreads", "EmbedLinks", "AttachFiles", "ReadMessageHistory"] }
-    },
     "private": {
       "everyone": { "deny": ["ViewChannel"] },
       "bot": { "allow": ["ViewChannel", "SendMessages", "EmbedLinks", "AttachFiles", "ReadMessageHistory"] }
@@ -45,39 +54,33 @@
   "categories": [
     {
       "key": "reception",
-      "name": "🛎️ reception",
+      "name": "🛎️ start here",
       "adopt": ["Text Channels"],
       "preset": "open",
       "channels": [
-        { "key": "front-desk", "name": "front-desk", "type": "text", "preset": "lobby",
-          "topic": "welcome to the sam altman office. read the pins, grab a badge, sign the NDA (there is no NDA). repo access goes through /access." },
-        { "key": "water-cooler", "name": "water-cooler", "type": "text", "preset": "open", "adopt": ["general"],
-          "topic": "general chat. what's said at the water cooler stays at the water cooler (it's logged, this is an AI company)." },
-        { "key": "vague-tweets", "name": "vague-tweets", "type": "text", "preset": "open",
-          "topic": "memes, links, inspo and cryptic one-liners about AGI. feel the AGI." }
+        { "key": "front-desk", "name": "welcome", "type": "text", "preset": "lobby",
+          "topic": "welcome to the sam altman office. read the pinned guide, get a badge from the ceo, sign the NDA (there is no NDA)." },
+        { "key": "launch-livestream", "name": "announcements", "type": "text", "preset": "lobby",
+          "topic": "releases, deploys and blog posts. every launch is our most capable model yet." }
       ]
     },
     {
-      "key": "shipping",
-      "name": "🚢 we ship",
-      "preset": "feed",
+      "key": "hangout",
+      "name": "💬 hangout",
+      "preset": "open",
       "channels": [
-        { "key": "launch-livestream", "name": "launch-livestream", "type": "text", "preset": "feed",
-          "topic": "deploys, merged PRs and the daily standup. every launch is our most capable model yet." },
-        { "key": "ships-dexcode", "name": "dexcode-ships", "type": "text", "preset": "feed",
-          "topic": "🧠 every push to dexcode, every branch. talk about a push in its thread. /diff /source /commits work anywhere." },
-        { "key": "ships-dexclient", "name": "dexclient-ships", "type": "text", "preset": "feed",
-          "topic": "📦 every push to dexclient, every branch. talk about a push in its thread." },
-        { "key": "ships-dexplace", "name": "dexplace-ships", "type": "text", "preset": "feed",
-          "topic": "🌐 every push to dex.place, every branch. talk about a push in its thread." }
+        { "key": "water-cooler", "name": "general", "type": "text", "preset": "open", "adopt": ["general"],
+          "topic": "general chat. what's said at the water cooler stays at the water cooler (it's logged, this is an AI company)." }
       ]
     },
     {
       "key": "lab",
-      "name": "🧪 research lab",
+      "name": "🛠️ work",
       "preset": "open",
       "channels": [
-        { "key": "rlhf", "name": "rlhf", "type": "forum", "preset": "forum",
+        { "key": "devlog", "name": "devlog", "type": "text", "preset": "lobby",
+          "topic": "one daily digest of what moved across dexcode, dexclient and dex.place. the standup, minus the standing." },
+        { "key": "rlhf", "name": "feedback", "type": "forum", "preset": "crew-forum",
           "topic": "reinforcement learning from human feedback. one post per bug, idea or vibe about dexcode, dexclient or dex.place. tag the project. /feedback works too.",
           "defaultReaction": "👀",
           "tags": [
@@ -92,8 +95,12 @@
             { "key": "tracked", "name": "tracked on github", "emoji": "📌", "moderated": true },
             { "key": "shipped", "name": "shipped", "emoji": "✅", "moderated": true }
           ] },
-        { "key": "red-team", "name": "red-team", "type": "text", "preset": "staff",
-          "topic": "code review. /review a branch or commit and pick the diff apart in its thread. be mean to the code, nice to the human." }
+        { "key": "testing", "name": "testing", "type": "text", "preset": "crew",
+          "topic": "what needs testing and which build to try. red teamers break things on purpose here." },
+        { "key": "red-team", "name": "dev", "type": "text", "preset": "staff",
+          "topic": "dev talk and code review. /review a branch or commit and pick the diff apart in its thread. be mean to the code, nice to the human." },
+        { "key": "commits", "name": "commits", "type": "text", "preset": "feed",
+          "topic": "pushes to main, PRs and failed CI for all three projects. talk about a push in its thread." }
       ]
     },
     {
@@ -101,10 +108,10 @@
       "name": "🗄️ board room",
       "preset": "private",
       "channels": [
-        { "key": "board-meeting", "name": "board-meeting", "type": "text", "preset": "private",
-          "topic": "the board. access requests, hires and the occasional firing (reinstatement pending)." },
-        { "key": "compute-bill", "name": "compute-bill", "type": "text", "preset": "private",
-          "topic": "GOJO's logs, errors and health. the compute bill is always larger than expected." }
+        { "key": "board-meeting", "name": "inbox", "type": "text", "preset": "private",
+          "topic": "the board. join cards, access requests, hires and the occasional firing (reinstatement pending)." },
+        { "key": "compute-bill", "name": "alerts", "type": "text", "preset": "private",
+          "topic": "GOJO's errors and health. the compute bill is always larger than expected." }
       ]
     },
     {
@@ -113,9 +120,24 @@
       "adopt": ["Voice Channels"],
       "preset": "open",
       "channels": [
-        { "key": "all-hands", "name": "all-hands", "type": "voice", "preset": "open", "adopt": ["General"] },
-        { "key": "pair-programming", "name": "pair-programming", "type": "voice", "preset": "open" },
-        { "key": "the-blip", "name": "the-blip", "type": "voice", "preset": "open" }
+        { "key": "all-hands", "name": "hangout", "type": "voice", "preset": "open", "adopt": ["General"] },
+        { "key": "pair-programming", "name": "pairing", "type": "voice", "preset": "open" },
+        { "key": "the-blip", "name": "afk", "type": "voice", "preset": "open" }
+      ]
+    },
+    {
+      "key": "shipping",
+      "name": "🗃️ archive",
+      "preset": "private",
+      "channels": [
+        { "key": "ships-dexcode", "name": "dexcode-ships", "type": "text", "preset": "private",
+          "topic": "archived: the old every-push-every-branch dexcode feed. pushes now land in #commits." },
+        { "key": "ships-dexclient", "name": "dexclient-ships", "type": "text", "preset": "private",
+          "topic": "archived: the old every-push-every-branch dexclient feed. pushes now land in #commits." },
+        { "key": "ships-dexplace", "name": "dexplace-ships", "type": "text", "preset": "private",
+          "topic": "archived: the old every-push-every-branch dex.place feed. pushes now land in #commits." },
+        { "key": "vague-tweets", "name": "vague-tweets", "type": "text", "preset": "private",
+          "topic": "archived: memes and cryptic agi posts. it never caught on." }
       ]
     }
   ]

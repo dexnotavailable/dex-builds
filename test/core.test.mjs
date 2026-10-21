@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { isSecretPath, redactSecrets } from '../src/core/redact.mjs';
 import { codeBlock, commitBody, fileName, joinWithin, truncate, ts } from '../src/core/format.mjs';
 import { commitLine, fileLines, splitDiff, withholdSecretFiles } from '../src/core/gitfmt.mjs';
-import { cid } from '../src/core/router.mjs';
+import { cid, Router } from '../src/core/router.mjs';
 import { parseArgs } from '../src/core/config.mjs';
 import { StateStore } from '../src/core/state.mjs';
 import fs from 'node:fs';
@@ -123,4 +123,15 @@ test('StateStore persists atomically and quarantines corrupt files', () => {
   } finally {
     fs.rmSync(dir, { recursive: true, force: true });
   }
+});
+
+test('Router skips commands listed in config.commands.disabled', () => {
+  const router = new Router({ config: { commands: { disabled: ['diff', 'source'] } } });
+  router.use({ name: 'src', commands: [{ name: 'source' }, { name: 'diff' }, { name: 'clone' }] });
+  router.use({ name: 'other', commands: () => [{ name: 'status' }] });
+  assert.deepEqual(router.commandJSON().map((c) => c.name), ['clone', 'status']);
+  assert.ok(!router.byCommand.has('diff'));
+  const plain = new Router({ config: {} });
+  plain.use({ name: 'src', commands: [{ name: 'source' }] });
+  assert.deepEqual(plain.commandJSON().map((c) => c.name), ['source']);
 });

@@ -102,9 +102,11 @@ test('status survives huge state without breaking field limits', () => {
 test('help lists every command once, grouped, within embed limits', () => {
   const channelIds = { rlhf: '1', 'red-team': '2' };
   const e = buildHelpEmbed({ mention: (k) => `<#${channelIds[k]}>`, staffName: 'member of technical staff' }).toJSON();
-  const required = ['/help', '/status', '/feedback new', '/feedback track', '/feedback ship', '/access request', '/access status', '/clone', '/standup', '/source', '/diff', '/commits', '/branches', '/worktree list', '/worktree diff', '/review', '/hire', '/fire', '/admin'];
+  const required = ['/help', '/status', '/feedback new', '/feedback track', '/feedback ship', '/access request', '/access status', '/clone', '/standup', '/review', '/hire', '/fire', '/admin'];
   const listed = HELP_SECTIONS.flatMap((s) => s.commands.map(([cmd]) => cmd));
   for (const cmd of required) assert.equal(listed.filter((c) => c === cmd).length, 1, cmd);
+  // switched off in config/projects.json `commands.disabled` and the unloaded worktree module
+  for (const cmd of ['/source', '/diff', '/commits', '/branches', '/worktree list', '/worktree diff']) assert.ok(!listed.includes(cmd), cmd);
   assert.deepEqual(e.fields.map((f) => f.name), ['everyone', 'member of technical staff', 'the board (owner)']);
   const text = JSON.stringify(e);
   assert.ok(text.includes('<#1>') && text.includes('<#2>'));

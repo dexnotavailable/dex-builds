@@ -241,7 +241,7 @@ export async function repostBlog(ctx, slugInput) {
     delete store.posts[slug];
     delete store.skipped[slug];
     const ok = await sendPost(ctx, project, cfg, { slug, blob: file.sha, post }, log);
-    if (!ok) throw new UserError(`posting \`${slug}\` stopped part way. the details are in #compute-bill; running this again starts it over.`);
+    if (!ok) throw new UserError(`posting \`${slug}\` stopped part way. the details are in #alerts; running this again starts it over.`);
   } finally {
     sending = false;
   }

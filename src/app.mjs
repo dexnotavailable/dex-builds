@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { EventEmitter } from 'node:events';
 import path from 'node:path';
 import { ActivityType, Client, Events, GatewayIntentBits, Partials } from 'discord.js';
@@ -60,7 +61,7 @@ export function createApp(args, { logFile = 'devbot.log', exit = (code) => proce
   ctx.router = new Router(ctx);
   for (const mod of modules) ctx.router.use(mod);
 
-  // ---------------------------------------------------------------- #compute-bill log sink
+  // ---------------------------------------------------------------- #alerts log sink (layout key compute-bill)
   const pendingLogs = [];
   let sinkTimer = null;
   logRoot.sink = (lvl, scope, text) => {
@@ -134,8 +135,17 @@ export function createApp(args, { logFile = 'devbot.log', exit = (code) => proce
     await guild.members.fetch(); // owner + roles for permission checks and onboarding
     await client.application.fetch();
 
-    const report = await provisionLayout(ctx, { apply: provision });
-    log.info(`layout ${provision ? 'applied' : 'ensured'}: ${report.summary}`);
+    // A changed config/layout.json is applied in full once (renames, topics, permissions, order),
+    // so layout edits deploy with a restart. Otherwise a start only creates what is missing.
+    const layoutHash = createHash('sha256').update(JSON.stringify(config.layout)).digest('hex').slice(0, 16);
+    const layoutChanged = ctx.guildCtx.ids.appliedLayout !== layoutHash;
+    const apply = provision || layoutChanged;
+    const report = await provisionLayout(ctx, { apply });
+    if (apply && !ctx.dryRun) {
+      ctx.guildCtx.ids.appliedLayout = layoutHash;
+      state.save('layout', { immediate: true });
+    }
+    log.info(`layout ${apply ? `applied${layoutChanged && !provision ? ' (layout.json changed)' : ''}` : 'ensured'}: ${report.summary}`);
     if (provisionOnly || !live) return report;
 
     await ctx.router.registerCommands();

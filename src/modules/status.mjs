@@ -141,12 +141,6 @@ export const HELP_SECTIONS = [
   {
     title: '{staff}',
     commands: [
-      ['/source', 'a file or folder at any branch or commit'],
-      ['/diff', 'a commit or range: summary plus a .diff file'],
-      ['/commits', 'recent commits on a branch'],
-      ['/branches', 'branches by last activity'],
-      ['/worktree list', "dex's local worktrees"],
-      ['/worktree diff', 'uncommitted tracked changes in one (secrets withheld)'],
       ['/review', 'post a review request in {red-team}'],
       ['/standup', "preview today's standup"],
       ['/feedback track', 'in an {rlhf} post: open a github issue for it'],
@@ -156,8 +150,8 @@ export const HELP_SECTIONS = [
   {
     title: 'the board (owner)',
     commands: [
-      ['/hire', 'give someone the {staff} badge'],
-      ['/fire', 'take it back'],
+      ['/hire', 'give someone a badge: tester or {staff}'],
+      ['/fire', 'take their badges back'],
       ['/access list', 'who has github access and who is waiting'],
       ['/access revoke', "remove someone's github access"],
       ['/admin', 'restart, provision, pause, resume, poll, resync'],
@@ -229,7 +223,7 @@ export default {
   },
 
   components: {
-    /** The 📖 button in #front-desk. */
+    /** The 📖 button in #welcome. */
     help: (interaction, ctx) => replyHelp(interaction, ctx),
   },
 };

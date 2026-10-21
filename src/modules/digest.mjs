@@ -3,7 +3,7 @@ import { requireStaff } from '../core/guild.mjs';
 import { churn, md, plural, truncate } from '../core/format.mjs';
 import { redactSecrets } from '../core/redact.mjs';
 
-// The daily standup in #launch-livestream: the last 24 h of pushes, PRs, deploys and open
+// The daily standup in #devlog: the last 24 h of pushes, PRs, deploys and open
 // feedback per project, built only from other modules' state (no GitHub calls). State: digest =
 // { lastPostedDate: 'YYYY-MM-DD' in the configured timezone }.
 
@@ -180,7 +180,7 @@ export function buildStandup(ctx, now = new Date()) {
   const open = ctx.config.projects.filter((p) => feedback[p.key]).map((p) => `${p.emoji} ${feedback[p.key]}`);
   if (open.length) {
     const rlhf = ctx.guildCtx?.channelId('rlhf');
-    description.push(`open in ${rlhf ? `<#${rlhf}>` : '#rlhf'}: ${open.join(' · ')}`);
+    description.push(`open in ${rlhf ? `<#${rlhf}>` : '#feedback'}: ${open.join(' · ')}`);
   }
 
   const embed = new EmbedBuilder()
@@ -202,7 +202,7 @@ async function tick(ctx, log) {
   const state = ctx.state.get('digest', { lastPostedDate: null });
   if (!shouldPost(state, parts, hour)) return;
   try {
-    const sent = await ctx.guildCtx.send('launch-livestream', buildStandup(ctx, now));
+    const sent = await ctx.guildCtx.send('devlog', buildStandup(ctx, now));
     // null outside dry-run = the channel is missing; try again next tick instead of losing the day
     if (sent == null && !ctx.dryRun) return;
     log.info(`standup posted for ${parts.date}`);

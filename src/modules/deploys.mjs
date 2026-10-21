@@ -142,7 +142,7 @@ export function withRolePing(payload, roleId) {
 }
 
 /**
- * The #launch-livestream embed for a deploy or rollback. `commit` is the REST commit for the live
+ * The #announcements embed for a deploy or rollback. `commit` is the REST commit for the live
  * sha, `compare` the compare between the last announced sha and it (reversed for a rollback);
  * either may be null when GitHub was unavailable.
  */

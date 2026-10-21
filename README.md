@@ -2,14 +2,14 @@
 
 This `devbot` branch of `dex-builds` holds the Discord bot for the dex dev server. It is an orphan branch that shares no history with `main`, so the `heads/` files that dexClient reads stay untouched. GOJO:
 
-- posts **every push to every branch** of dexcode, dexclient and dex.place into per-project channels, with diff, file-list and discussion-thread buttons
-- posts PRs, issues, failed CI runs, dex.place deploys and a daily standup
-- posts every dex.place blog post **in full** to `#water-cooler`: real paragraphs and headings, tables drawn as images, figures as attachments (see [Blog posts](#blog-posts))
-- lets trusted reviewers read source, diffs, branches and Dex's live local worktrees from Discord
+- posts pushes to each project's **default branch**, plus PRs, issues and failed CI runs, into the staff-only `#commits` channel, with diff, file-list and discussion-thread buttons
+- posts dex.place deploys and every dex.place blog post **in full** to `#announcements` (blog: real paragraphs and headings, tables drawn as images, figures as attachments; see [Blog posts](#blog-posts)), and a daily standup to `#devlog`
 - turns feedback into forum posts and GitHub issues, and handles GitHub repo-access requests with a one-click owner approval
-- keeps the server layout as code (`config/layout.json`)
-- observes visible chat, decides when to answer, and posts short hourly project catch-ups to `#water-cooler` when there is news ([Gojo chat and memory](docs/gojo.md))
-- saves dexCode bug/test-failure reports for the working chat and returns correlated fix progress and questions to their reporter ([fix relay](docs/gojo.md#dexcode-fix-relay))
+- hands out the tester (`red teamer`) and dev (`member of technical staff`) badges from join cards or `/hire`
+- keeps the server layout as code (`config/layout.json`), re-applied automatically on the first start after the file changes
+- has a model brain ([Gojo chat and memory](docs/gojo.md)) and a dexCode fix relay that are **switched off** on the live server (`gojo.enabled: false` in `local.json`) until the on-demand rework lands
+
+Who sees what: everyone (new people get `on the waitlist`) sees `#welcome`, `#announcements`, `#general`, `#devlog` and voice. Testers add `#feedback` and `#testing`. Devs add `#dev` and `#commits`. `#inbox` and `#alerts` are the owner's. The old per-project ship channels and `#vague-tweets` sit hidden in an archive category.
 
 It runs on Dex's PC as the scheduled task `\Dex\Dex Devbot`.
 
@@ -19,21 +19,19 @@ It runs on Dex's PC as the scheduled task `\Dex\Dex Devbot`.
 |---|---|---|
 | `/help` | everyone | this list, in Discord |
 | `/status` | everyone (staff see more) | feeds, last pushes, deploys, open PRs, bot health |
-| `/feedback new` | everyone | a form that becomes a post in `#rlhf` |
-| `/feedback track` · `/feedback ship` | staff | in an `#rlhf` post: make a GitHub issue / mark shipped |
-| `/access request` · `/access status` | everyone | ask for GitHub access; Dex approves in `#board-meeting` |
+| `/feedback new` | everyone | a form that becomes a post in `#feedback` |
+| `/feedback track` · `/feedback ship` | staff | in a `#feedback` post: make a GitHub issue / mark shipped |
+| `/access request` · `/access status` | everyone | ask for GitHub access; Dex approves in `#inbox` |
 | `/access revoke` · `/access list` | owner | remove someone's GitHub access / see who has it |
-| `/source` | staff | a file or folder at any branch/commit (autocompleted paths) |
-| `/diff` | staff | a commit or a range as a summary plus a `.diff` file |
-| `/commits` · `/branches` | staff | recent commits on a ref / branches by last activity |
-| `/worktree list` · `/worktree diff` | staff | Dex's local worktrees and their uncommitted tracked changes (secrets withheld) |
-| `/review` | staff | a review request in `#red-team` with the diff, a thread and verdict buttons |
+| `/review` | staff | a review request in `#dev` with the diff, a thread and verdict buttons |
 | `/clone` | everyone | how to clone a project and check a branch out as a worktree |
 | `/standup` | staff | preview today's standup digest |
-| `/hire` · `/fire` | owner | give or take the `member of technical staff` badge |
+| `/hire` · `/fire` | owner | give a badge (`as: tester` or `dev`, default dev) / take both back |
 | `/admin …` | owner | restart, re-apply layout, pause/resume feeds, poll now, re-post a blog post (`/admin blog`), resync commands |
 
 "Staff" means the `member of technical staff` role; the owner counts as staff everywhere.
+
+Switched off: `/source`, `/diff`, `/commits` and `/branches` are listed in `config/projects.json` `commands.disabled` (their module stays loaded for `/clone` and the feed buttons), and `src/modules/worktree.mjs` (`/worktree`) is not loaded. Use GitHub for code browsing.
 
 ## Running it
 

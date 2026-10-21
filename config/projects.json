@@ -7,7 +7,7 @@
       "emoji": "🧠",
       "color": "#8b5cf6",
       "blurb": "the local agent desktop",
-      "feedChannel": "ships-dexcode",
+      "feedChannel": "commits",
       "pingRole": "ping-dexcode",
       "forumTag": "dexcode"
     },
@@ -18,7 +18,7 @@
       "emoji": "📦",
       "color": "#22c55e",
       "blurb": "the installer, updater and launcher",
-      "feedChannel": "ships-dexclient",
+      "feedChannel": "commits",
       "pingRole": "ping-dexclient",
       "forumTag": "dexclient"
     },
@@ -30,7 +30,7 @@
       "color": "#f59e0b",
       "blurb": "the website",
       "site": "https://dex.place",
-      "feedChannel": "ships-dexplace",
+      "feedChannel": "commits",
       "pingRole": "ping-dexplace",
       "forumTag": "dexplace"
     }
@@ -45,16 +45,25 @@
     "project": "dexplace",
     "path": "content/blog",
     "ref": "main",
-    "channel": "water-cooler",
+    "channel": "launch-livestream",
     "settleMinutes": 10
   },
   "feed": {
     "maxCommitsPerPost": 10,
     "maxPushesPerCycle": 12,
+    "defaultBranchOnly": true,
     "ignoreBranches": []
   },
   "digest": {
     "hour": 10,
     "timezone": "Asia/Ho_Chi_Minh"
+  },
+  "commands": {
+    "disabled": [
+      "source",
+      "diff",
+      "commits",
+      "branches"
+    ]
   }
 }

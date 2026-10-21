@@ -20,7 +20,7 @@ function describe(value) {
 
 /**
  * Line logger: console + size-rotated file, every line passed through redactSecrets.
- * `sink` (optional) receives warn/error lines so they can surface in #compute-bill.
+ * `sink` (optional) receives warn/error lines so they can surface in #alerts.
  */
 export function createLogger({ dir, file = 'devbot.log', level = 'info' } = {}) {
   const min = LEVELS[level] ?? LEVELS.info;

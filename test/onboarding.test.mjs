@@ -18,7 +18,7 @@ import onboarding, {
 
 const { projects } = JSON.parse(fs.readFileSync(new URL('../config/projects.json', import.meta.url), 'utf8'));
 const layout = JSON.parse(fs.readFileSync(new URL('../config/layout.json', import.meta.url), 'utf8'));
-const CHANNEL_KEYS = ['front-desk', 'water-cooler', 'vague-tweets', 'launch-livestream', 'ships-dexcode', 'ships-dexclient', 'ships-dexplace', 'rlhf', 'red-team', 'board-meeting'];
+const CHANNEL_KEYS = ['front-desk', 'launch-livestream', 'water-cooler', 'devlog', 'rlhf', 'testing', 'red-team', 'commits', 'board-meeting'];
 const channelIds = Object.fromEntries(CHANNEL_KEYS.map((k, i) => [k, String(100 + i)]));
 const names = {
   mention: (key) => (channelIds[key] ? `<#${channelIds[key]}>` : `#${key}`),
@@ -45,12 +45,13 @@ test('guide embed covers channels, access, commands and house rules within limit
   assert.equal(e.title, GUIDE_TITLE);
   assertEmbedLimits(e);
   const text = JSON.stringify(e);
-  for (const key of ['water-cooler', 'vague-tweets', 'launch-livestream', 'ships-dexcode', 'ships-dexclient', 'ships-dexplace', 'rlhf', 'red-team']) {
+  for (const key of ['launch-livestream', 'water-cooler', 'devlog', 'rlhf', 'testing', 'red-team', 'commits']) {
     assert.ok(text.includes(`<#${channelIds[key]}>`), key);
   }
-  for (const cmd of ['/feedback new', '/source', '/diff', '/review', '/worktree', '/status', '/help', '/access request']) assert.ok(text.includes(cmd), cmd);
-  assert.ok(text.includes('on the waitlist') && text.includes('member of technical staff'));
-  assert.ok(text.includes('dexCode, dexClient and dex.place get built, reviewed and roasted here'));
+  for (const cmd of ['/feedback new', '/review', '/clone', '/status', '/help', '/access request']) assert.ok(text.includes(cmd), cmd);
+  for (const cut of ['/source', '/diff', '/worktree']) assert.ok(!text.includes(cut), cut);
+  assert.ok(text.includes('on the waitlist') && text.includes('red teamer') && text.includes('member of technical staff'));
+  assert.ok(text.includes('dexCode, dexClient and dex.place get built, tested and roasted here'));
   assert.equal(e.fields.find((f) => f.name === 'house rules').value.split('\n').length, 3);
 });
 
@@ -244,7 +245,7 @@ test('join card shows who, account age and owner-only buttons', () => {
   assert.ok(e.description.includes('new\\_guy'));
   assert.ok(e.description.includes('fresh account'));
   const ids = fresh.components[0].toJSON().components.map((c) => c.custom_id);
-  assert.deepEqual(ids, ['onboarding:hire:42', 'onboarding:dismiss:42']);
+  assert.deepEqual(ids, ['onboarding:hire:42:tester', 'onboarding:hire:42:staff', 'onboarding:dismiss:42']);
   const old = buildJoinCard({ userId: '42', tag: 'x', createdAt: new Date(now - 400 * 86_400_000), joinedAt: new Date(now - 3600_000), missed: true, now });
   const d = old.embeds[0].toJSON().description;
   assert.ok(!d.includes('fresh account'));
@@ -266,8 +267,13 @@ test('welcome dm names what the badge unlocks and fits a message', () => {
   const text = buildWelcomeDm(names);
   assert.ok(text.length < 2000);
   assert.ok(text.includes('member of technical staff'));
-  assert.ok(text.includes(`<#${channelIds['red-team']}>`));
+  assert.ok(text.includes(`<#${channelIds['red-team']}>`) && text.includes(`<#${channelIds.commits}>`));
   assert.ok(text.includes('/access request'));
+  const tester = buildWelcomeDm(names, 'tester');
+  assert.ok(tester.length < 2000);
+  assert.ok(tester.includes('red teamer'));
+  assert.ok(tester.includes(`<#${channelIds.testing}>`) && tester.includes(`<#${channelIds.rlhf}>`));
+  assert.ok(!tester.includes(`<#${channelIds['red-team']}>`) && !tester.includes('/access'));
 });
 
 test('missedArrivals finds humans who joined while offline and have no role yet', () => {
@@ -307,4 +313,40 @@ test('hire button is owner-only and never touches roles for others', async () =>
   assert.equal(deferred, false);
   assert.equal(replies.length, 1);
   assert.match(replies[0].content, /board members only/);
+});
+
+test('owner hires from a join card as tester: tester badge on, waitlist off, tester dm', async () => {
+  const ctx = fakeCtx({ channel: fakeChannel('bot') });
+  const held = new Set(['role-waitlist']);
+  const added = [];
+  const removed = [];
+  const dms = [];
+  const member = {
+    user: { bot: false, tag: 'friend' },
+    roles: {
+      cache: { has: (id) => held.has(id) },
+      add: async (ids) => ids.forEach((id) => (added.push(id), held.add(id))),
+      remove: async (ids) => ids.forEach((id) => (removed.push(id), held.delete(id))),
+    },
+    send: async (p) => dms.push(p.content),
+  };
+  const edits = [];
+  const followUps = [];
+  const interaction = {
+    user: { id: 'owner', username: 'dex' },
+    guild: { members: { fetch: async () => member } },
+    message: { embeds: [buildJoinCard({ userId: '42', tag: 'friend', createdAt: new Date(0) }).embeds[0].toJSON()] },
+    deferUpdate: async () => {},
+    editReply: async (p) => edits.push(p),
+    followUp: async (p) => followUps.push(p),
+  };
+  await onboarding.components.hire(interaction, ctx, ['42', 'tester']);
+  assert.deepEqual(added, ['role-tester']);
+  assert.deepEqual(removed, ['role-waitlist']);
+  assert.equal(dms.length, 1);
+  assert.ok(dms[0].includes('red teamer'));
+  assert.deepEqual(edits[0].components, []);
+  assert.match(JSON.stringify(edits[0].embeds), /hired as \*\*red teamer\*\*/);
+  assert.match(followUps[0].content, /as \*\*red teamer\*\*/);
+  assert.ok(!followUps[0].content.includes('/access'));
 });

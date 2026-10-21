@@ -10,9 +10,9 @@ import deploys from './deploys.mjs';
 import blog from './blog.mjs';
 import digest from './digest.mjs';
 import source from './source.mjs';
-import worktree from './worktree.mjs';
 import review from './review.mjs';
 import feedback from './feedback.mjs';
 import gojo from './gojo.mjs';
 
-export const modules = [provision, admin, status, onboarding, access, feed, activity, deploys, blog, digest, source, worktree, review, feedback, gojo];
+export const modules = [provision, admin, status, onboarding, access, feed, activity, deploys, blog, digest, source, review, feedback, gojo];
+// worktree.mjs (/worktree: Dex's live local checkouts) is kept on disk but not loaded.

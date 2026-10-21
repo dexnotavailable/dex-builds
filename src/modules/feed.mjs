@@ -417,6 +417,7 @@ function feedConfig(ctx) {
   return {
     maxCommitsPerPost: f.maxCommitsPerPost ?? 10,
     maxPushesPerCycle: f.maxPushesPerCycle ?? 12,
+    defaultBranchOnly: f.defaultBranchOnly ?? false,
     ignoreBranches: f.ignoreBranches ?? [],
   };
 }
@@ -563,15 +564,18 @@ export async function pollProject(ctx, project, log) {
     return;
   }
   const cfg = feedConfig(ctx);
-  const [{ items }, repo] = await Promise.all([ctx.github.branches(project.repo), ctx.github.repo(project.repo)]);
+  const [{ items: all }, repo] = await Promise.all([ctx.github.branches(project.repo), ctx.github.repo(project.repo)]);
   const def = repo?.default_branch ?? null;
+  // defaultBranchOnly: other branches are never announced, and dropped from state silently (no "deleted" lines).
+  const tracked = (name) => !cfg.defaultBranchOnly || !def || name === def;
+  const items = all.filter((b) => tracked(b.name));
   const head = ctx.state.get('heads', {})[project.key];
   if (!head) return seedProject(ctx, project, items, def, cfg.ignoreBranches, log);
 
   head.branches ??= {};
   head.pushedAt ??= {};
   head.lastCheckedAt = new Date().toISOString();
-  for (const name of Object.keys(head.branches)) if (!watched(name, cfg.ignoreBranches)) delete head.branches[name];
+  for (const name of Object.keys(head.branches)) if (!watched(name, cfg.ignoreBranches) || !tracked(name)) delete head.branches[name];
   // Diffing against state (not just GitHub's `changed` flag) also retries posts that failed earlier.
   const diff = diffBranches(head.branches, items, cfg.ignoreBranches);
   const defaultMoved = Boolean(def && head.defaultBranch && def !== head.defaultBranch);

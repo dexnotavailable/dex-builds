@@ -15,7 +15,7 @@ import { diffPayload, gh, TOO_BIG_FOOTER } from '../core/gitfmt.mjs';
 import { redactSecrets } from '../core/redact.mjs';
 import { shortSha, truncate } from '../core/format.mjs';
 
-// /review: a review request in #red-team with the diff, a discussion thread and verdict buttons.
+// /review: a review request in #dev with the diff, a discussion thread and verdict buttons.
 // State `reviews`: { [messageId]: { project, base, head, label, pr, requestedBy, verdicts: {userId: verdict}, createdAt } }
 
 export const VERDICTS = {
@@ -243,7 +243,7 @@ async function onReview(interaction, ctx) {
     components: [reviewButtons(target.url)],
   });
   if (!message) {
-    await interaction.editReply(ctx.dryRun ? 'dry run: the review was logged, not posted.' : "couldn't reach #red-team. an owner needs to re-run the layout (`/admin`).");
+    await interaction.editReply(ctx.dryRun ? 'dry run: the review was logged, not posted.' : "couldn't reach #dev. an owner needs to re-run the layout (`/admin`).");
     return;
   }
 
@@ -268,7 +268,7 @@ async function onReview(interaction, ctx) {
   } catch (err) {
     ctx.log.child('review').warn(`review ${message.id}: thread setup failed: ${err.message}`);
   }
-  await interaction.editReply(`review is up in red-team: ${message.url}${tooBig ? '\nsummary only: the diff is too large for discord.' : ''}`);
+  await interaction.editReply(`review is up in #dev: ${message.url}${tooBig ? '\nsummary only: the diff is too large for discord.' : ''}`);
 }
 
 async function onVerdict(interaction, ctx, [kind]) {
@@ -301,7 +301,7 @@ export default {
   name: 'review',
   commands: (config) => [
     addRefOption(
-      addRefOption(addProjectOption(new SlashCommandBuilder().setName('review').setDescription('ask for a code review in #red-team (staff)'), config), {
+      addRefOption(addProjectOption(new SlashCommandBuilder().setName('review').setDescription('ask for a code review in #dev (staff)'), config), {
         name: 'ref',
         required: true,
         description: 'branch, commit, or PR number (#12)',

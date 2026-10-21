@@ -110,7 +110,7 @@ export default {
       .addSubcommand((s) =>
         s
           .setName('blog')
-          .setDescription('post a blog post to the water cooler again, replacing the old copy')
+          .setDescription('post a blog post to #announcements again, replacing the old copy')
           .addStringOption((o) => o.setName('post').setDescription('the post file name, without .md').setRequired(true)),
       )
       .addSubcommand((s) => s.setName('resync').setDescription('re-register the slash commands')),

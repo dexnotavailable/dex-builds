@@ -554,6 +554,7 @@ export default {
   // Keep each project's default-branch tree warm so the first /source path keystroke answers
   // from cache (dexcode's recursive tree takes longer than the 3 s autocomplete window cold).
   async start(ctx) {
+    if (ctx.config.commands?.disabled?.includes('source')) return; // nothing to autocomplete
     ctx.scheduler.every(
       'source:warm-trees',
       540,

@@ -824,3 +824,25 @@ test('diff button answers with the summary and the .diff file', async () => {
   await feed.components.diff(fakeInteraction({ calls: gone }), ctx, ['dexclient', '-', head]);
   assert.match(gone[1][1].content, /that commit is gone from github/);
 });
+
+test('defaultBranchOnly: other branches drop out silently and only the default branch posts', async () => {
+  const repo = PROJECT.repo;
+  const ctx = fakeCtx({ branches: { [repo]: [branch('main', 1), branch('feat/a', 2), branch('old', 3)] } });
+  await pollProject(ctx, PROJECT, ctx.log); // seeded the old way, every branch in state
+  assert.equal(ctx.sent.length, 1);
+  assert.deepEqual(Object.keys(ctx.data.heads.dexclient.branches).sort(), ['feat/a', 'main', 'old']);
+
+  ctx.config.feed.defaultBranchOnly = true;
+  // feat/a moved, old was deleted, new appeared: none of it is announced
+  ctx.github.branches = async () => ({ items: [branch('main', 1), branch('feat/a', 5), branch('new', 6)], changed: true });
+  await pollProject(ctx, PROJECT, ctx.log);
+  assert.equal(ctx.sent.length, 1, 'nothing posted for non-default branches');
+  assert.deepEqual(ctx.data.heads.dexclient.branches, { main: sha(1) });
+
+  const c = [commit(7, { minute: 1 }), commit(8, { minute: 2 })];
+  ctx.github.compare = async () => ({ status: 'ahead', ahead_by: 2, behind_by: 0, total_commits: 2, commits: c, files: [file(1)], merge_base_commit: { sha: sha(1) } });
+  ctx.github.branches = async () => ({ items: [branch('main', 8), branch('feat/a', 9)], changed: true });
+  await pollProject(ctx, PROJECT, ctx.log);
+  assert.deepEqual(kinds(ctx.sent).slice(1), ['🚀 2 new commits → main']);
+  assert.deepEqual(ctx.data.heads.dexclient.branches, { main: sha(8) });
+});

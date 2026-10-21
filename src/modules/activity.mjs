@@ -5,8 +5,8 @@ import { gh } from '../core/gitfmt.mjs';
 import { churn, hexColor, md, plural, safeText, shortSha, truncate } from '../core/format.mjs';
 import { redactSecrets } from '../core/redact.mjs';
 
-// PRs, issues and CI runs for every project, posted to the project's feed channel. Merged PRs
-// also go to #launch-livestream with the project's ping role. State: activity[projectKey] =
+// PRs, issues and CI runs for every project, posted to the project's feed channel (#commits).
+// State: activity[projectKey] =
 // { seededAt, pulls: {n: record}, issues: {n: record}, runs: { seen: [id], last: {slot: conclusion} }, lastIssueCheck }.
 
 const DAY = 86_400_000;
@@ -317,10 +317,8 @@ async function pollPulls(ctx, project, st, log) {
   const byNumber = new Map(list.map((pr) => [pr.number, pr]));
   for (const { type, number } of events) {
     const pr = WITH_CHANGES.has(type) ? await withChanges(ctx, project, byNumber.get(number), log) : byNumber.get(number);
+    // PRs stay in the staff #commits feed; #announcements is for releases, deploys and blog posts.
     await post(ctx, log, project.feedChannel, pullMessage(project, type, pr));
-    if (type === 'merged') {
-      await post(ctx, log, 'launch-livestream', withRolePing(pullMessage(project, type, pr), ctx.guildCtx.roleId(project.pingRole)));
-    }
   }
 }
 

@@ -20,7 +20,7 @@ import { addProjectOption, getProject, UserError } from '../core/projects.mjs';
 import { redactSecrets } from '../core/redact.mjs';
 import { hexColor, md, truncate } from '../core/format.mjs';
 
-// #rlhf: feedback forum posts, optionally tracked as GitHub issues.
+// #feedback: feedback forum posts, optionally tracked as GitHub issues.
 // State `feedback`: { threads: { threadId: { project, kind, title, status, issue, authorId, createdAt } },
 //                     issues: { 'owner/repo#n': threadId } }
 // status: open -> tracked (issue filed) -> shipped, or closed (issue closed on github as not planned).
@@ -232,12 +232,12 @@ async function fetchChannel(ctx, id) {
   return ctx.client.channels.cache.get(id) ?? (await ctx.client.channels.fetch(id).catch(() => null));
 }
 
-/** The #rlhf post an interaction happened in, or a UserError. */
+/** The #feedback post an interaction happened in, or a UserError. */
 async function postOf(interaction, ctx) {
   const channel = interaction.channel ?? (await fetchChannel(ctx, interaction.channelId));
   if (!isPost(ctx, channel)) {
     const forumId = ctx.guildCtx.channelId(FORUM);
-    throw new UserError(`use this inside a post in ${forumId ? `<#${forumId}>` : '#rlhf'}.`);
+    throw new UserError(`use this inside a post in ${forumId ? `<#${forumId}>` : '#feedback'}.`);
   }
   return channel;
 }
@@ -426,7 +426,7 @@ async function onNew(interaction, ctx) {
   const project = getProject(ctx, interaction.options.getString('project', true));
   const kind = interaction.options.getString('kind', true);
   if (!KINDS[kind]) throw new UserError(`unknown kind "${kind}".`);
-  if (!ctx.guildCtx.channelId(FORUM)) throw new UserError("the #rlhf forum isn't set up yet. ping the ceo.");
+  if (!ctx.guildCtx.channelId(FORUM)) throw new UserError("the #feedback forum isn't set up yet. ping the ceo.");
   await interaction.showModal(feedbackModal(project, kind));
 }
 
@@ -449,7 +449,7 @@ async function onNewSubmit(interaction, ctx, [projectKey, kind]) {
   await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
   const forum = await ctx.guildCtx.channel(FORUM);
-  if (forum?.type !== ChannelType.GuildForum) throw new UserError("the #rlhf forum isn't set up yet. ping the ceo.");
+  if (forum?.type !== ChannelType.GuildForum) throw new UserError("the #feedback forum isn't set up yet. ping the ceo.");
   const embed = postEmbed({ project, kind, details, where, authorId: interaction.user.id });
   if (ctx.dryRun) {
     logger(ctx).info(`[dry-run] -> #${FORUM} new post "${title}" (${project.key}/${kind})`);
@@ -472,7 +472,7 @@ async function onNewSubmit(interaction, ctx, [projectKey, kind]) {
     createdAt: new Date().toISOString(),
   };
   ctx.state.save('feedback');
-  await interaction.editReply(`posted in rlhf: ${thread.url}`);
+  await interaction.editReply(`posted in #feedback: ${thread.url}`);
 }
 
 async function onTrack(interaction, ctx) {
@@ -499,7 +499,7 @@ async function onShip(interaction, ctx) {
   await interaction.editReply(await ship(ctx, thread, interaction.user));
 }
 
-/** A member opened a post directly in #rlhf: record it and drop the track/ship buttons in. */
+/** A member opened a post directly in #feedback: record it and drop the track/ship buttons in. */
 async function onThreadCreate(thread, newlyCreated, ctx) {
   if (!newlyCreated || !isPost(ctx, thread) || thread.ownerId === ctx.client.user?.id) return;
   if (store(ctx).threads[thread.id]) return;
@@ -524,9 +524,9 @@ export default {
   commands: (config) => [
     new SlashCommandBuilder()
       .setName('feedback')
-      .setDescription('bugs, ideas and vibes for #rlhf')
+      .setDescription('bugs, ideas and vibes for #feedback')
       .addSubcommand((s) =>
-        addProjectOption(s.setName('new').setDescription('post feedback to #rlhf (a short form)'), config).addStringOption((o) =>
+        addProjectOption(s.setName('new').setDescription('post feedback to #feedback (a short form)'), config).addStringOption((o) =>
           o
             .setName('kind')
             .setDescription('what kind of feedback')
@@ -534,8 +534,8 @@ export default {
             .addChoices(...KIND_KEYS.map((k) => ({ name: `${KINDS[k].emoji} ${KINDS[k].label}`, value: k }))),
         ),
       )
-      .addSubcommand((s) => s.setName('track').setDescription('staff: turn this #rlhf post into a github issue'))
-      .addSubcommand((s) => s.setName('ship').setDescription('staff: mark this #rlhf post shipped and close its issue')),
+      .addSubcommand((s) => s.setName('track').setDescription('staff: turn this #feedback post into a github issue'))
+      .addSubcommand((s) => s.setName('ship').setDescription('staff: mark this #feedback post shipped and close its issue')),
   ],
 
   async onCommand(interaction, ctx) {

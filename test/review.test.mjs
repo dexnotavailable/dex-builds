@@ -363,7 +363,7 @@ test('/review posts to red-team pinging only the staff role, with a thread and s
     { project: 'dexcode', base: MASTER, head: FEATURE, requestedBy: 'u1', verdicts: {}, pr: null },
   );
   assert.deepEqual(replies[0].defer, { flags: MessageFlags.Ephemeral });
-  assert.equal(replies.at(-1).edit, 'review is up in red-team: https://discord.com/channels/g/c/msg1');
+  assert.equal(replies.at(-1).edit, 'review is up in #dev: https://discord.com/channels/g/c/msg1');
 });
 
 test('/review #2 reviews the pull request range', async () => {
@@ -415,7 +415,7 @@ test('/review still posts the summary when github says the diff is too large (40
   assert.match(embed.fields[0].name, /^1 file/);
   assert.deepEqual(embed.fields.at(-1), { name: 'verdicts', value: 'none yet' });
   assert.equal(threads.length, 1);
-  assert.match(replies.at(-1).edit, /^review is up in red-team: \S+\nsummary only: the diff is too large for discord\.$/);
+  assert.match(replies.at(-1).edit, /^review is up in #dev: \S+\nsummary only: the diff is too large for discord\.$/);
 });
 
 test('/review turns an unknown ref into a user error', async () => {

@@ -39,8 +39,10 @@ export class Router {
     this.modules.push(mod);
     this.byName.set(mod.name, mod);
     const commands = typeof mod.commands === 'function' ? mod.commands(this.ctx.config) : mod.commands ?? [];
+    const disabled = new Set(this.ctx.config?.commands?.disabled ?? []);
     for (const cmd of commands) {
       const json = typeof cmd.toJSON === 'function' ? cmd.toJSON() : cmd;
+      if (disabled.has(json.name)) continue; // never registered, so Discord drops it on the next bulk overwrite
       if (this.byCommand.has(json.name)) throw new Error(`command /${json.name} registered twice`);
       this.byCommand.set(json.name, { mod, json });
     }

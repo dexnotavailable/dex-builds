@@ -179,5 +179,5 @@ test('buildStandup: a quiet day says so and reads no missing namespaces into exi
 test('buildStandup: feedback without a known #rlhf id falls back to plain text', () => {
   const ctx = fakeCtx({ feedback: { threads: { t: { project: 'dexclient', status: 'open' } } } }, null);
   const e = buildStandup(ctx, NOW).embeds[0].toJSON();
-  assert.match(e.description, /\nopen in #rlhf: 📦 1$/);
+  assert.match(e.description, /\nopen in #feedback: 📦 1$/);
 });

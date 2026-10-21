@@ -9,11 +9,11 @@ import {
   SlashCommandBuilder,
 } from 'discord.js';
 import { cid } from '../core/router.mjs';
-import { isOwner, isStaff, requireOwner } from '../core/guild.mjs';
+import { isOwner, requireOwner } from '../core/guild.mjs';
 import { UserError } from '../core/projects.mjs';
 import { hexColor, md, truncate, ts } from '../core/format.mjs';
 
-// #front-desk (pinned guide + role panel), join cards in #board-meeting, and the staff badge
+// #welcome (pinned guide + role panel), join cards in #inbox, and the tester/dev badges
 // (/hire, /fire). State `onboarding`: { guideMessageId, panelMessageId, joins: {userId: cardId}, joinWatermark }.
 
 export const GUIDE_TITLE = 'welcome to the sam altman office';
@@ -55,24 +55,24 @@ function listJoin(items) {
 export function buildGuideEmbed({ mention, roleName: role, projects }) {
   const projectLines = projects.map((p) => `${p.emoji} **${md(p.name)}**${p.blurb ? `: ${md(p.blurb)}` : ''}`);
   const where = [
+    `${mention('launch-livestream')} releases, deploys and blog posts`,
     `${mention('water-cooler')} general chat`,
-    `${mention('vague-tweets')} memes, links and cryptic agi posts`,
-    `${mention('launch-livestream')} deploys, merged prs and the daily standup`,
-    `${projects.map((p) => mention(p.feedChannel)).join(' ')} every push to every branch, one channel per project`,
-    `${mention('rlhf')} the feedback forum: one post per bug, idea or vibe`,
-    `${mention('red-team')} code review, one thread per request`,
+    `${mention('devlog')} one daily digest of what moved`,
+    `${mention('rlhf')} bugs and ideas, one post each (testers and devs)`,
+    `${mention('testing')} what needs testing and which build to try (testers and devs)`,
+    `${mention('red-team')} dev talk and code review (devs)`,
+    `${mention('commits')} pushes to main, prs and failed ci (devs)`,
   ];
   const access = [
-    `new people start **${md(role('waitlist'))}**, which covers this channel, the water cooler, vague tweets, ${mention('rlhf')} and voice.`,
-    `the ceo hands out the **${md(role('staff'))}** badge. it unlocks the ship feeds, ${mention('launch-livestream')}, ${mention('red-team')}, source, diffs and worktrees.`,
+    `everyone new starts **${md(role('waitlist'))}**: this channel, announcements, general, the devlog and voice.`,
+    `testers get **${md(role('tester'))}** from the ceo. it opens ${mention('rlhf')} and ${mention('testing')}.`,
+    `devs get **${md(role('staff'))}**. it opens everything testers see plus ${mention('red-team')} and ${mention('commits')}.`,
     'the private repos need github access on top: `/access request`, or the 🎟️ button below.',
   ];
   const commands = [
     `\`/feedback new\` file a bug or idea into ${mention('rlhf')}`,
-    '`/source` read any file at any branch or commit',
-    '`/diff` a commit or range, with a .diff file',
-    `\`/review\` ask ${mention('red-team')} to review a branch or commit`,
-    "`/worktree` what dex has uncommitted right now",
+    `\`/review\` ask ${mention('red-team')} to review a branch or commit (devs)`,
+    '`/clone` how to clone a project and check out a branch',
     "`/status` what shipped, what's open, whether gojo is alive",
     '`/help` everything else',
   ];
@@ -80,7 +80,7 @@ export function buildGuideEmbed({ mention, roleName: role, projects }) {
   return new EmbedBuilder()
     .setColor(STAFF_COLOR)
     .setTitle(GUIDE_TITLE)
-    .setDescription(`${listJoin(projects.map((p) => md(p.name)))} get built, reviewed and roasted here.\n\n${projectLines.join('\n')}`)
+    .setDescription(`${listJoin(projects.map((p) => md(p.name)))} get built, tested and roasted here.\n\n${projectLines.join('\n')}`)
     .addFields(
       { name: 'where things are', value: truncate(where.join('\n'), 1024) },
       { name: 'how access works', value: truncate(access.join('\n'), 1024) },
@@ -170,11 +170,15 @@ export function buildJoinCard({ userId, tag, createdAt, joinedAt = null, missed 
     .setDescription(lines.join('\n'))
     .setFooter({ text: `user ${userId} · on the waitlist until someone decides` });
   const row = new ActionRowBuilder().addComponents(
-    new ButtonBuilder().setCustomId(cid('onboarding', 'hire', userId)).setLabel('🪪 hire').setStyle(ButtonStyle.Success),
+    new ButtonBuilder().setCustomId(cid('onboarding', 'hire', userId, 'tester')).setLabel('🧪 tester').setStyle(ButtonStyle.Primary),
+    new ButtonBuilder().setCustomId(cid('onboarding', 'hire', userId, 'staff')).setLabel('🪪 dev').setStyle(ButtonStyle.Success),
     new ButtonBuilder().setCustomId(cid('onboarding', 'dismiss', userId)).setLabel('🙅 not now').setStyle(ButtonStyle.Secondary),
   );
   return { embeds: [embed], components: [row] };
 }
+
+/** The badges /hire hands out: layout role key -> how people say it. */
+export const BADGES = { tester: 'tester', staff: 'dev' };
 
 /** A card embed with its `decision` field set to `line` (replacing an earlier decision). */
 export function resolveCardEmbed(embed, line) {
@@ -183,14 +187,23 @@ export function resolveCardEmbed(embed, line) {
   return builder.setFields(...fields, { name: 'decision', value: truncate(line, 1024) });
 }
 
-export function buildWelcomeDm({ mention, roleName: role, projects }) {
+export function buildWelcomeDm({ mention, roleName: role }, badge = 'staff') {
+  if (badge === 'tester') {
+    return [
+      `you're in: **${md(role('tester'))}** at the sam altman office.`,
+      'you can now see:',
+      `• ${mention('testing')} what needs testing and which build to try`,
+      `• ${mention('rlhf')} bugs and ideas, one post each`,
+      `\`/feedback new\` files a bug from anywhere. break things on purpose; that's the job.`,
+    ].join('\n');
+  }
   return [
     `you're in: **${md(role('staff'))}** at the sam altman office.`,
     'you can now see:',
-    `• ${projects.map((p) => mention(p.feedChannel)).join(' ')} every push, every branch`,
-    `• ${mention('launch-livestream')} deploys, merged prs and the standup`,
-    `• ${mention('red-team')} code review`,
-    'and use `/source`, `/diff`, `/commits`, `/branches`, `/worktree` and `/review`.',
+    `• ${mention('red-team')} dev talk and code review`,
+    `• ${mention('commits')} pushes to main, prs and failed ci`,
+    `• ${mention('testing')} and ${mention('rlhf')}, same as the testers`,
+    'and use `/review` plus `/feedback track` and `/feedback ship`.',
     'the private repos need github access too: `/access request` (skip it if you already asked).',
   ].join('\n');
 }
@@ -336,7 +349,7 @@ async function sweepArrivals(ctx) {
     members.map((m) => ({ id: m.id, bot: m.user.bot, joinedAt: m.joinedTimestamp, roles: [...m.roles.cache.keys()] })),
     {
       since: state.joinWatermark,
-      roleIds: [ctx.guildCtx.roleId('staff'), ctx.guildCtx.roleId('waitlist')],
+      roleIds: [ctx.guildCtx.roleId('staff'), ctx.guildCtx.roleId('tester'), ctx.guildCtx.roleId('waitlist')],
       ownerIds: [guild.ownerId, ...ctx.config.local.ownerIds],
       carded: state.joins,
     },
@@ -349,33 +362,37 @@ async function sweepArrivals(ctx) {
 
 // ------------------------------------------------------------------ hire / fire
 
-/** Staff badge on, waitlist off, welcome DM. Returns { member, wasStaff }. */
-async function hireMember(ctx, guild, userId, by) {
-  if (!ctx.guildCtx.roleId('staff')) throw new UserError('the staff role is missing. run `/admin provision` first.');
+/** A badge (tester or staff) on, waitlist off, welcome DM. Returns { member, hadIt }. */
+async function hireMember(ctx, guild, userId, by, badge = 'staff') {
+  if (!(badge in BADGES)) throw new UserError(`there is no ${badge} badge.`);
+  if (!ctx.guildCtx.roleId(badge)) throw new UserError(`the ${BADGES[badge]} role is missing. run \`/admin provision\` first.`);
   const member = await guild.members.fetch(userId).catch(() => null);
   if (!member) throw new UserError('they already left the office.');
   if (member.user.bot) throw new UserError("bots don't get badges.");
-  const wasStaff = member.roles.cache.has(ctx.guildCtx.roleId('staff'));
-  await setRoles(ctx, member, { add: ['staff'], remove: ['waitlist'] }, `hired by ${by.username}`);
-  if (!wasStaff) await member.send({ content: buildWelcomeDm(names(ctx)) }).catch(() => {});
-  return { member, wasStaff };
+  const hadIt = member.roles.cache.has(ctx.guildCtx.roleId(badge));
+  await setRoles(ctx, member, { add: [badge], remove: ['waitlist'] }, `hired as ${BADGES[badge]} by ${by.username}`);
+  if (!hadIt) await member.send({ content: buildWelcomeDm(names(ctx), badge) }).catch(() => {});
+  return { member, hadIt };
 }
 
-function hiredLine(by, wasStaff) {
-  return wasStaff ? `🪪 already had the badge (checked by ${by} ${ts(Date.now())})` : `🪪 hired by ${by} ${ts(Date.now())}`;
+function hiredLine(by, hadIt, badgeName) {
+  return hadIt ? `🪪 already had **${md(badgeName)}** (checked by ${by} ${ts(Date.now())})` : `🪪 hired as **${md(badgeName)}** by ${by} ${ts(Date.now())}`;
 }
 
 async function hireCommand(interaction, ctx) {
   if (!(await requireOwner(interaction, ctx))) return;
   const user = interaction.options.getUser('member', true);
+  const badge = interaction.options.getString('as') ?? 'staff';
   await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-  const { wasStaff } = await hireMember(ctx, interaction.guild, user.id, interaction.user);
-  await markJoinCard(ctx, user.id, hiredLine(interaction.user, wasStaff)).catch((err) => logger(ctx).warn(`join card for ${user.id}: ${err.message}`));
+  const { hadIt } = await hireMember(ctx, interaction.guild, user.id, interaction.user, badge);
+  const name = roleName(ctx, badge);
+  await markJoinCard(ctx, user.id, hiredLine(interaction.user, hadIt, name)).catch((err) => logger(ctx).warn(`join card for ${user.id}: ${err.message}`));
   forgetJoin(ctx, user.id);
+  const github = badge === 'staff' ? ' github access is separate: `/access`.' : '';
   await interaction.editReply(
-    wasStaff
-      ? `${user} already had the **${md(roleName(ctx, 'staff'))}** badge. nothing changed.`
-      : `hired ${user}: **${md(roleName(ctx, 'staff'))}**, off the waitlist, welcome dm sent (if their dms are open). github access is separate: \`/access\`.`,
+    hadIt
+      ? `${user} already had the **${md(name)}** badge. nothing changed.`
+      : `hired ${user}: **${md(name)}**, off the waitlist, welcome dm sent (if their dms are open).${github}`,
   );
 }
 
@@ -387,16 +404,16 @@ async function fireCommand(interaction, ctx) {
   await interaction.deferReply({ flags: MessageFlags.Ephemeral });
   const member = await interaction.guild.members.fetch(user.id).catch(() => null);
   if (!member) throw new UserError(`${user} isn't in the office anymore.`);
-  const wasStaff = member.roles.cache.has(ctx.guildCtx.roleId('staff'));
-  await setRoles(ctx, member, { add: ['waitlist'], remove: ['staff'] }, `fired by ${interaction.user.username}`);
+  const hadBadge = ['staff', 'tester'].some((key) => member.roles.cache.has(ctx.guildCtx.roleId(key)));
+  await setRoles(ctx, member, { add: ['waitlist'], remove: ['staff', 'tester'] }, `fired by ${interaction.user.username}`);
   await ctx.guildCtx.send('board-meeting', {
-    content: `🔥 ${user} (${md(user.tag)}) fired by ${interaction.user}. badge returned, back on the waitlist. reinstatement pending.`,
+    content: `🔥 ${user} (${md(user.tag)}) fired by ${interaction.user}. badges returned, back on the waitlist. reinstatement pending.`,
   });
   const grant = ctx.state.get('access').grants?.[user.id];
   const github = grant
     ? `they still have github access as \`${grant.github}\`: \`/access revoke\` removes it.`
     : 'github access is separate: `/access revoke` if they had any.';
-  await interaction.editReply(`${wasStaff ? 'fired' : "they weren't staff, but they're on the waitlist now:"} ${user}. ${github}`);
+  await interaction.editReply(`${hadBadge ? 'fired' : "they had no badge, but they're on the waitlist now:"} ${user}. ${github}`);
 }
 
 // ------------------------------------------------------------------ module
@@ -407,12 +424,18 @@ export default {
   commands: () => [
     new SlashCommandBuilder()
       .setName('hire')
-      .setDescription('give someone the member of technical staff badge (owner)')
+      .setDescription('give someone a badge: tester or dev (owner)')
       .setDefaultMemberPermissions(PermissionFlagsBits.ManageRoles)
-      .addUserOption((o) => o.setName('member').setDescription('who gets the badge').setRequired(true)),
+      .addUserOption((o) => o.setName('member').setDescription('who gets the badge').setRequired(true))
+      .addStringOption((o) =>
+        o
+          .setName('as')
+          .setDescription('which badge (default: dev)')
+          .addChoices({ name: 'tester (red teamer)', value: 'tester' }, { name: 'dev (member of technical staff)', value: 'staff' }),
+      ),
     new SlashCommandBuilder()
       .setName('fire')
-      .setDescription('take the member of technical staff badge back (owner)')
+      .setDescription('take the tester and dev badges back (owner)')
       .setDefaultMemberPermissions(PermissionFlagsBits.ManageRoles)
       .addUserOption((o) => o.setName('member').setDescription('who loses the badge').setRequired(true)),
   ],
@@ -432,21 +455,23 @@ export default {
       const had = member.roles.cache.has(ctx.guildCtx.roleId(project.pingRole));
       await setRoles(ctx, member, had ? { remove: [project.pingRole] } : { add: [project.pingRole] }, 'early access toggle');
       const name = md(roleName(ctx, project.pingRole));
-      const later = isStaff(ctx, member) ? '' : ` (pings land in staff channels, so they start once you're **${md(roleName(ctx, 'staff'))}**)`;
       await interaction.reply({
-        content: had ? `🔕 left **${name}**. no more ${md(project.name)} pings.` : `🔔 joined **${name}**. you'll get pinged when ${md(project.name)} ships${later}.`,
+        content: had ? `🔕 left **${name}**. no more ${md(project.name)} pings.` : `🔔 joined **${name}**. you'll get pinged in announcements when ${md(project.name)} ships.`,
         flags: MessageFlags.Ephemeral,
       });
     },
 
-    async hire(interaction, ctx, [userId]) {
+    /** Join-card button. Cards from before the tester badge carry no badge arg and mean dev. */
+    async hire(interaction, ctx, [userId, badge = 'staff']) {
       if (!(await requireOwner(interaction, ctx))) return;
       await interaction.deferUpdate();
-      const { member, wasStaff } = await hireMember(ctx, interaction.guild, userId, interaction.user);
-      await interaction.editReply({ embeds: [resolveCardEmbed(interaction.message.embeds[0], hiredLine(interaction.user, wasStaff))], components: [] });
+      const { member, hadIt } = await hireMember(ctx, interaction.guild, userId, interaction.user, badge);
+      const name = roleName(ctx, badge);
+      await interaction.editReply({ embeds: [resolveCardEmbed(interaction.message.embeds[0], hiredLine(interaction.user, hadIt, name))], components: [] });
       forgetJoin(ctx, userId);
+      const github = badge === 'staff' ? ' github access is separate: `/access`.' : '';
       await interaction.followUp({
-        content: wasStaff ? `${member} already had the badge.` : `hired ${member}. welcome dm sent (if their dms are open). github access is separate: \`/access\`.`,
+        content: hadIt ? `${member} already had **${md(name)}**.` : `hired ${member} as **${md(name)}**. welcome dm sent (if their dms are open).${github}`,
         flags: MessageFlags.Ephemeral,
       });
     },

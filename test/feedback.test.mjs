@@ -470,7 +470,7 @@ test('/feedback new submit creates a tagged forum post and records it', async ()
     { project: record.project, kind: record.kind, title: record.title, status: record.status, issue: record.issue, authorId: record.authorId },
     { project: 'dexclient', kind: 'bug', title: 'installer hangs', status: 'open', issue: null, authorId: 'u1' },
   );
-  assert.equal(replies.at(-1).edit, 'posted in rlhf: https://discord.com/channels/g/p10');
+  assert.equal(replies.at(-1).edit, 'posted in #feedback: https://discord.com/channels/g/p10');
 });
 
 test('tracking a member post Discord blanked says so in the issue and the reply', async () => {

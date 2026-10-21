@@ -96,6 +96,8 @@ export function loadConfig(home) {
     },
     poll: projectsFile.poll,
     feed: projectsFile.feed,
+    // Slash commands switched off without deleting their module (config/projects.json `commands.disabled`).
+    commands: { disabled: projectsFile.commands?.disabled ?? [] },
     blog: projectsFile.blog ?? null,
     digest: projectsFile.digest,
     gojo: {
