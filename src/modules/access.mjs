@@ -168,7 +168,7 @@ export function buildRequestCard(req, { grant = null, now = Date.now() } = {}) {
       name: 'options',
       value: readTier
         ? `read: read-only on the private repos. ${READ_TIER_NOTE} · write: push to every repo`
-        : 'approve makes them a collaborator on every repo. these repos belong to a personal github account, and github gives every collaborator there push access (read-only needs an org). /source, /diff and /worktree stay read-only either way.',
+        : 'approve makes them a collaborator on every repo. these repos belong to a personal github account, and github gives every collaborator there push access (read-only needs an org).',
     });
     if (req.lastAttempt) embed.addFields({ name: `last attempt ${ts(req.lastAttempt.at)}`, value: resultLines(req.lastAttempt.results) });
   } else {

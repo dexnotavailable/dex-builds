@@ -16,7 +16,7 @@ const GITHUB_FILE_CAP = 300; // compare and commit responses list at most this m
 const LATEST_FALLBACK = 5; // commits shown when a compare is impossible (rewritten or unrelated history)
 const SHA_RE = /^[0-9a-f]{7,40}$/i;
 const THREAD_ALREADY_EXISTS = 160004; // Discord error code
-const GONE = 'that commit is gone from github (force-pushed away, probably). try `/diff` on the branch.';
+const GONE = 'that commit is gone from github (force-pushed away, probably). open the branch on github instead.';
 
 // ------------------------------------------------------------------ branch diffing (pure)
 
@@ -358,7 +358,7 @@ export function threadName(message) {
 /** customId args [key, base|'-', head] -> { key, base, head }. */
 export function parseRangeArgs([key, base, head] = []) {
   if (!key || !SHA_RE.test(head ?? '') || (base !== '-' && !SHA_RE.test(base ?? ''))) {
-    throw new UserError('that button lost track of its commits. try `/diff` instead.');
+    throw new UserError('that button lost track of its commits. open the commits on github instead.');
   }
   return { key, base: base === '-' ? null : base, head };
 }
